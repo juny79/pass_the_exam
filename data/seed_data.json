@@ -37,6 +37,11 @@
               "probability": "95%",
               "core_concepts": "스택/힙 오버플로우 원리, NOP Sled, Return Address 변조, 보호 기법(ASLR, DEP/NX, Stack Canary, SafeSEH)",
               "practical_point": "gdb를 이용한 스택 프레임 분석 및 gcc 컴파일 옵션(-fno-stack-protector, -z execstack 등) 출제",
+              "youtube_tips": {
+                "channel": "수제비 TV (두음쌤) & 알기사",
+                "mnemonic": "메모리 보호 4대장: '카-에-디-아' (Canary, ASLR, DEP/NX, ASCII-Armor)",
+                "lecture_summary": "1. 버퍼를 넘쳐 RET(리턴주소)를 덮어쓰는 것이 핵심.\n2. 방어기법 암기: Stack Canary(버퍼와 SFP사이에 난수 삽입 후 에필로그 검증), ASLR(스택/힙/라이브러리 주소를 실행마다 무작위 배치), DEP/NX(스택/힙 영역의 실행 권한 박탈).\n3. 서술형 시험에서는 각 보호기법의 영문 풀네임과 원리를 명확히 대조 서술해야 만점."
+              },
               "related_terms": ["ASLR", "DEP/NX", "Stack Canary", "Shellcode", "RET Sled"]
             },
             {
@@ -46,6 +51,11 @@
               "probability": "90%",
               "core_concepts": "/etc/passwd, /etc/shadow 패스워드 해시 구조, 특수 권한(SetUID, SetGID, Sticky Bit), umask 계산",
               "practical_point": "find / -perm -4000 명령어를 통한 SetUID 취약 파일 점검 및 제거 스크립트 작성",
+              "youtube_tips": {
+                "channel": "이기적 영진닷컴 & 수제비 TV",
+                "mnemonic": "권한 3총사: '세-세-스' (SetUID 4000, SetGID 2000, Sticky Bit 1000)",
+                "lecture_summary": "1. /etc/shadow의 2번째 필드가 패스워드 해시($알고리즘$솔트$해시값).\n2. umask 계산법: 파일 기본권한 666에서 umask 차감, 디렉터리 기본권한 777에서 차감.\n3. find 명령어 실무형 빈출: 'find / -user root -perm -4000 -print' 옵션 암기 필수."
+              },
               "related_terms": ["SetUID", "Sticky Bit", "Shadow File", "umask", "PAM"]
             },
             {
@@ -55,6 +65,11 @@
               "probability": "85%",
               "core_concepts": "wtmp(last), utmp(who), btmp(lastb), lastlog, secure/auth.log, 윈도우 이벤트 뷰어(Event ID 4624/4625)",
               "practical_point": "침해사고 발생 시 공격자의 로그인 시간, IP, 실패 흔적을 로그에서 추출하고 역추적하는 시나리오",
+              "youtube_tips": {
+                "channel": "알기사 핵심 요약",
+                "mnemonic": "리눅스 4대 바이너리 로그: '유-후, 더블유-라, 비-라비' (utmp: who, wtmp: last, btmp: lastb)",
+                "lecture_summary": "1. utmp/wtmp/btmp는 텍스트 에디터(vi/cat)로 열 수 없고 반드시 전용 명령어(who, last, lastb)로 확인해야 함.\n2. 윈도우 보안 이벤트 로그 Event ID 암기 필수: 4624는 로그인 성공, 4625는 로그인 실패(Brute Force 탐지용)."
+              },
               "related_terms": ["utmp", "wtmp", "btmp", "Event ID 4625", "syslog.conf"]
             }
           ]
@@ -72,6 +87,11 @@
               "probability": "98%",
               "core_concepts": "TCP SYN Flooding, Land Attack, Smurf, Teardrop, Bonk/Boink, HTTP Slowloris, Slow Read, NTP/DNS 증폭 공격",
               "practical_point": "TCP SYN Cookie 메커니즘 서술(ISN 인코딩), sysctl 커널 튜닝, iptables connlimit/limit 룰 작성",
+              "youtube_tips": {
+                "channel": "수제비 TV (두음쌤) & 알기사",
+                "mnemonic": "DoS 공격 원리 분류: '싱-백, 스-다, 랜-송수, 티-오' (SYN: 백로그고갈, Smurf: 다이렉트브로드캐스트, Land: 송수신IP일치, Teardrop: 오프셋조작)",
+                "lecture_summary": "1. SYN Flooding 대응 1순위: 'SYN Cookie' (Backlog Queue 미할당 및 ISN에 암호화 해시 기록).\n2. Land Attack은 출발지 IP=목적지 IP 동일하게 세팅하여 Loop 유발.\n3. Slowloris(Slow HTTP Header DoS)는 헤더 끝(\\r\\n\\r\\n)을 보내지 않고 계속 연결을 유지시켜 웹서버 커넥션을 고갈시키는 기법."
+              },
               "related_terms": ["SYN Cookie", "Backlog Queue", "Slowloris", "Smurf Attack", "DRDoS"]
             },
             {
@@ -81,6 +101,11 @@
               "probability": "90%",
               "core_concepts": "Rule Header(action, proto, src_ip, src_port, direction, dst_ip, dst_port)와 Rule Option(msg, content, depth, offset, sid, rev)",
               "practical_point": "특정 웹 공격(SQLi, XSS, 패스워드 무차별 대입) 차단 및 탐지를 위한 alert/drop 룰 직접 작성",
+              "youtube_tips": {
+                "channel": "알기사 실기 핵심특강",
+                "mnemonic": "Snort 헤더 7요소: '액-프-출출-방-목목' (Action, Protocol, Src_IP, Src_Port, ->, Dst_IP, Dst_Port)",
+                "lecture_summary": "1. 실기 단골 문제: 'alert tcp any any -> 192.168.1.10 80 (msg:\"SQL Injection\"; content:\"union\"; nocase; sid:1000001;)'\n2. 옵션 키워드: content(매칭문자열), nocase(대소문자 무시), offset(검색 시작위치), depth(검색 길이), sid(100만번 이상은 사용자 정의)."
+              },
               "related_terms": ["Snort Rule", "content", "nocase", "offset/depth", "sid"]
             },
             {
@@ -90,6 +115,11 @@
               "probability": "80%",
               "core_concepts": "AH(무결성/인증), ESP(기밀성/무결성/인증), 전송 모드 vs 터널 모드, IKE 1/2단계 키 교환",
               "practical_point": "AH와 ESP의 패킷 헤더 구조 차이점 및 NAT-Traversal 환경에서의 동작 한계점 비교",
+              "youtube_tips": {
+                "channel": "이기적 영진닷컴",
+                "mnemonic": "IPSec 프로토콜: '아(AH) 인증/무결, 에(ESP) 암호/인증/무결'",
+                "lecture_summary": "1. AH는 기밀성(암호화)을 제공하지 않으며 IP 헤더까지 해시하므로 NAT 환경에서 통신 불가.\n2. ESP는 암호화(기밀성)를 제공하며 NAT 환경에서는 NAT-T(UDP 4500) 캡슐화 필요.\n3. 전송모드(종단간 통신, 원본 IP 유지) vs 터널모드(게이트웨이간 통신, New IP 헤더 추가)."
+              },
               "related_terms": ["AH", "ESP", "IKE", "SA(Security Association)", "Tunnel Mode"]
             }
           ]
@@ -107,6 +137,11 @@
               "probability": "95%",
               "core_concepts": "Error-based, Union-based, Blind SQLi(Boolean/Time-based), 정적 쿼리 바인딩, Mybatis # vs $ 차이점",
               "practical_point": "PreparedStatement(매개변수화된 쿼리) 동작 원리(문법 파싱 후 값 바인딩)와 시큐어 코딩 적용법",
+              "youtube_tips": {
+                "channel": "수제비 TV & 조상진 보안특강",
+                "mnemonic": "SQLi 공격 유형: '에-유-블' (Error, Union, Blind), 방어 1순위: '프-파-바' (PreparedStatement 파싱 후 바인딩)",
+                "lecture_summary": "1. PreparedStatement는 쿼리 구조를 미리 컴파일/파싱하고 사용자 입력값을 단순 상수 리터럴로 처리하므로 구조 변경 불가능.\n2. MyBatis 사용 시: #{}는 매개변수화 바인딩(안전), ${}는 단순 문자열 치환(SQLi 취약).\n3. Blind SQLi는 참/거짓 응답 차이(Boolean-based) 또는 sleep()/waitfor 함수(Time-based)로 한 글자씩 추출."
+              },
               "related_terms": ["PreparedStatement", "Blind SQLi", "Union Injection", "MyBatis #{}", "입력값 검증"]
             },
             {
@@ -116,6 +151,11 @@
               "probability": "90%",
               "core_concepts": "Stored XSS, Reflected XSS, DOM-based XSS, HttpOnly 쿠키 플래그, SameSite 플래그, CSRF Token",
               "practical_point": "XSS와 CSRF의 공격 주체 및 목적 차이(XSS: 사용자 권한 탈취 vs CSRF: 사용자 권한 도용 행위 요청)",
+              "youtube_tips": {
+                "channel": "알기사 & 수제비 TV",
+                "mnemonic": "차이점 명쾌 공식: 'XSS는 스크립트 실행(정보탈취), CSRF는 요청 위조(동작수행)'",
+                "lecture_summary": "1. XSS 방어: HTML Entity 인코딩(치환), 쿠키에 HttpOnly 플래그 설정(JS를 통한 document.cookie 접근 차단).\n2. CSRF 방어: 서버에서 발급한 난수형 CSRF 토큰 검증, 중요한 상태 변경 요청은 재인증(CAPTCHA, 패스워드 재입력), SameSite=Strict 쿠키 설정."
+              },
               "related_terms": ["Stored XSS", "Reflected XSS", "CSRF Token", "HttpOnly", "SameSite"]
             },
             {
@@ -125,6 +165,11 @@
               "probability": "85%",
               "core_concepts": "발신자 위조 방지: SPF(DNS TXT 기반 허용 IP 등록), DKIM(전자서명), DMARC(SPF/DKIM 통합 정책)",
               "practical_point": "DNS 레코드 설정 형식(v=spf1 ip4:... ~all) 분석 및 차단 정책 구성",
+              "youtube_tips": {
+                "channel": "이기적 영진닷컴",
+                "mnemonic": "메일 보안 3총사: '스-드-디' (SPF: IP인증, DKIM: 전자서명, DMARC: 종합정책)",
+                "lecture_summary": "1. SPF: 수신 메일서버가 발신 도메인의 DNS TXT 레코드를 조회하여 허가된 IP 목록에 있는지 확인.\n2. DKIM: 발신 메일서버가 메일 헤더에 전자서명을 추가하고 수신자가 DNS 공개키로 서명 검증.\n3. DMARC: SPF와 DKIM 검증 실패 시 메일을 격리(quarantine)할지 거부(reject)할지 정책을 선언."
+              },
               "related_terms": ["SPF Record", "DKIM", "DMARC", "SMTP Header", "DNS TXT"]
             }
           ]
@@ -142,6 +187,11 @@
               "probability": "90%",
               "core_concepts": "대칭키(AES, DES, ARIA, SEED), 블록암호 모드(ECB, CBC, CTR, GCM), 공개키(RSA, ECC, ElGamal), 키 교환(DH)",
               "practical_point": "블록 암호화 운용 모드 중 CBC의 IV 필요성과 CTR/GCM의 병렬처리 장단점 서술",
+              "youtube_tips": {
+                "channel": "수제비 TV (두음쌤)",
+                "mnemonic": "국산 대칭키: '세-아-하' (SEED, ARIA, HIGHT) / 공개키: '알-이-디' (RSA, ECC, Diffie-Hellman)",
+                "lecture_summary": "1. 대칭키: 기밀성 제공, 속도 빠름, 키 배송 문제(n(n-1)/2개 키 필요).\n2. 비대칭키: 기밀성(수신자 공개키 암호화) + 전자서명/인증(송신자 개인키 암호화), 키 개수 2n개, 계산량 큼.\n3. 하이브리드 암호: 데이터는 대칭키로 암호화하고, 그 대칭키(세션키)를 수신자의 공개키로 암호화하여 전송."
+              },
               "related_terms": ["AES", "ARIA/SEED", "RSA", "CBC Mode", "IV(Initialization Vector)"]
             },
             {
@@ -151,6 +201,11 @@
               "probability": "85%",
               "core_concepts": "DAC(신분 기반), MAC(강제적, 보안라벨/인가등급, Bell-LaPadula, Biba), RBAC(역할 기반)",
               "practical_point": "BLP 모델의 기밀성 규칙(No Read Up, No Write Down)과 Biba 모델의 무결성 규칙 비교",
+              "youtube_tips": {
+                "channel": "알기사 핵심 요약",
+                "mnemonic": "벨-라파둘라: '기밀성-NRU-NWD' / 비바: '무결성-NRD-NWU'",
+                "lecture_summary": "1. Bell-LaPadula(BLP): 기밀성 중심. 단순 보안 규칙(No Read Up, 높은 등급 못 읽음), *-보안 규칙(No Write Down, 낮은 등급에 못 씀).\n2. Biba: 무결성 중심. 단순 무결성 규칙(No Read Down, 오염된 낮은 데이터 못 읽음), *-무결성 규칙(No Write Up, 높은 데이터 오염 방지).\n3. 실기 서술형에서 두 모델의 목적(기밀성 vs 무결성)과 규칙을 정반대로 쓰지 않도록 주의."
+              },
               "related_terms": ["Bell-LaPadula", "Biba", "MAC", "DAC", "RBAC"]
             }
           ]
@@ -168,6 +223,11 @@
               "probability": "95%",
               "core_concepts": "관리체계 수립 및 운영(16개), 보호대책 요구사항(64개), 개인정보 처리단계별 요구사항(22개) 총 102개 항목",
               "practical_point": "비밀번호 작성규칙, 접속기록 보관 기간(1년/2년), 망분리 대상 기준 및 예외 기준",
+              "youtube_tips": {
+                "channel": "수제비 TV & 알기사 법규특강",
+                "mnemonic": "ISMS-P 3대 영역 102개: '관16, 보64, 개22' (관리체계 16개, 보호대책 64개, 개인정보 22개)",
+                "lecture_summary": "1. 접속기록 보관기간: 일반 시스템 1년 이상 보관, 5만명 이상 정보처리자 또는 고유식별/민감정보 처리시스템은 2년 이상 보관.\n2. 비밀번호 작성 규칙: 영문/숫자/특수문자 중 3종류 이상 조합 시 8자리 이상, 2종류 조합 시 10자리 이상.\n3. 망분리 의무: 개인정보처리시스템 관리자 PC는 물리적 또는 논리적 망분리 필수."
+              },
               "related_terms": ["ISMS-P", "보호대책", "접속기록 보관(1년 이상)", "망분리", "위험평가"]
             },
             {
@@ -177,6 +237,11 @@
               "probability": "95%",
               "core_concepts": "고유식별정보 암호화 대상(주민등록번호, 여권번호, 운전면허번호, 외국인등록번호), 개인정보 파기 절차, 유출 통지 기준",
               "practical_point": "개인정보 유출 시 통지/신고 기한(72시간 이내), 안전성 확보조치 기준 고시상 암호화 저장 의무",
+              "youtube_tips": {
+                "channel": "조상진 보안특강 & 수제비 TV",
+                "mnemonic": "고유식별 4대장: '주-여-운-외' (주민, 여권, 운전면허, 외국인등록번호) / 유출 신고 골든타임: '72시간'",
+                "lecture_summary": "1. 고유식별정보 4종(주/여/운/외)은 정보통신망 송수신 및 내부 저장 시 암호화 필수(주민번호는 예외없이 암호화).\n2. 개정 개인정보보호법: 유출 인지 시 정보주체 통지 및 개인정보보호위원회 신고는 정당한 사유가 없는 한 '72시간 이내'로 통일됨.\n3. 파기 원칙: 보유기간 경과 및 처리목적 달성 시 지체 없이(5일 이내) 파기."
+              },
               "related_terms": ["고유식별정보", "안전성 확보조치", "72시간 신고", "비식별 조치", "가명정보"]
             }
           ]

@@ -26,7 +26,13 @@ class GradingRubric(BaseModel):
     mandatory_keywords: List[KeywordRubric] = []
     reference_essay: str
 
-# 과목별 지식 토픽 상세 모델
+# 유튜브 명강의 요약 및 암기팁 모델
+class YoutubeTip(BaseModel):
+    channel: str
+    mnemonic: str
+    lecture_summary: str
+
+# 과목별 지식 토픽 모델
 class KeyTopic(BaseModel):
     id: str
     title: str
@@ -34,6 +40,7 @@ class KeyTopic(BaseModel):
     probability: str
     core_concepts: str
     practical_point: str
+    youtube_tips: Optional[YoutubeTip] = None
     related_terms: List[str] = []
 
 class SubjectInfo(BaseModel):
@@ -43,7 +50,6 @@ class SubjectInfo(BaseModel):
     description: str
     key_topics: List[KeyTopic] = []
 
-# 문항 모델 (지식 연계 필드 포함)
 class Question(BaseModel):
     id: str
     cert_id: str
@@ -61,7 +67,6 @@ class Question(BaseModel):
     rubric: Optional[GradingRubric] = None
     explanation: Optional[str] = None
 
-# 채점 요청 및 지식 연계 분석 결과
 class SubmitAnswerRequest(BaseModel):
     question_id: str
     submitted_choice: Optional[int] = None
@@ -76,16 +81,15 @@ class GradingResult(BaseModel):
     missing_keywords: List[str] = []
     feedback: str
     explanation: str
-    # 지식 연계 메타데이터
     subject_name: Optional[str] = None
     topic_title: Optional[str] = None
     frequency: Optional[str] = None
     probability: Optional[str] = None
     core_concepts: Optional[str] = None
     practical_point: Optional[str] = None
+    youtube_tips: Optional[YoutubeTip] = None
     related_terms: List[str] = []
 
-# 합격 예측 모델
 class PassPredictionRequest(BaseModel):
     cert_id: str
     exam_type: ExamType

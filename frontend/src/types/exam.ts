@@ -18,6 +18,12 @@ export interface GradingRubric {
   reference_essay: string;
 }
 
+export interface YoutubeTip {
+  channel: string;
+  mnemonic: string;
+  lecture_summary: string;
+}
+
 export interface KeyTopic {
   id: string;
   title: string;
@@ -25,6 +31,7 @@ export interface KeyTopic {
   probability: string;
   core_concepts: string;
   practical_point: string;
+  youtube_tips?: YoutubeTip;
   related_terms: string[];
 }
 
@@ -63,13 +70,13 @@ export interface GradingResult {
   missing_keywords: string[];
   feedback: string;
   explanation: string;
-  // 문제 풀이 후 연계 학습 정보
   subject_name?: string;
   topic_title?: string;
   frequency?: string;
   probability?: string;
   core_concepts?: string;
   practical_point?: string;
+  youtube_tips?: YoutubeTip;
   related_terms?: string[];
 }
 

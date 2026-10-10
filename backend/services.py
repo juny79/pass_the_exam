@@ -1,5 +1,5 @@
 from typing import List, Tuple, Dict, Any, Optional
-from schemas import Question, GradingResult, PassPredictionRequest, PassPredictionResult
+from schemas import Question, GradingResult, PassPredictionRequest, PassPredictionResult, YoutubeTip
 
 class GradingEngine:
     @staticmethod
@@ -11,12 +11,14 @@ class GradingEngine:
         subject_name: Optional[str] = None
     ) -> GradingResult:
         
-        # 지식 연계 메타 추출
         core_concepts = topic_info.get("core_concepts") if topic_info else None
         practical_point = topic_info.get("practical_point") if topic_info else None
         related_terms = topic_info.get("related_terms", []) if topic_info else []
         freq = question.frequency or (topic_info.get("frequency") if topic_info else "보통")
         prob = question.probability or (topic_info.get("probability") if topic_info else "70%")
+        
+        yt_raw = topic_info.get("youtube_tips") if topic_info else None
+        yt_tips = YoutubeTip(**yt_raw) if yt_raw else None
 
         if question.question_type == "MULTIPLE_CHOICE":
             correct_opt = next((opt for opt in question.options if opt.is_correct), None)
@@ -37,6 +39,7 @@ class GradingEngine:
                 probability=prob,
                 core_concepts=core_concepts,
                 practical_point=practical_point,
+                youtube_tips=yt_tips,
                 related_terms=related_terms
             )
             
@@ -56,6 +59,7 @@ class GradingEngine:
                     probability=prob,
                     core_concepts=core_concepts,
                     practical_point=practical_point,
+                    youtube_tips=yt_tips,
                     related_terms=related_terms
                 )
                 
@@ -96,6 +100,7 @@ class GradingEngine:
                 probability=prob,
                 core_concepts=core_concepts,
                 practical_point=practical_point,
+                youtube_tips=yt_tips,
                 related_terms=related_terms
             )
             
@@ -112,6 +117,7 @@ class GradingEngine:
             probability=prob,
             core_concepts=core_concepts,
             practical_point=practical_point,
+            youtube_tips=yt_tips,
             related_terms=related_terms
         )
 

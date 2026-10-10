@@ -6,6 +6,7 @@ from typing import List, Dict
 
 from schemas import (
     Question,
+    SubjectInfo,
     SubmitAnswerRequest,
     GradingResult,
     PassPredictionRequest,
@@ -15,10 +16,10 @@ from services import GradingEngine, PredictionEngine
 
 app = FastAPI(
     title="PassForge API - 자격증 시험 합격전략 플랫폼",
-    version="1.0.0"
+    version="1.1.0"
 )
 
-# CORS 허용 (프론트엔드 연동)
+# CORS 허용
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -27,7 +28,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 데이터 로드
 DATA_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "processed_exam_data.json")
 
 def load_data():
@@ -44,6 +44,14 @@ def health_check():
 def get_certifications():
     data = load_data()
     return data.get("certifications", [])
+
+@app.get("/api/subjects", response_model=List[SubjectInfo])
+def get_subjects(cert_id: str = "is_engineer"):
+    data = load_data()
+    cert = next((c for c in data.get("certifications", []) if c["id"] == cert_id), None)
+    if not cert:
+        raise HTTPException(status_code=404, detail="자격증을 찾을 수 없습니다.")
+    return cert.get("subjects", [])
 
 @app.get("/api/questions", response_model=List[Question])
 def get_questions(cert_id: str = "is_engineer", exam_type: str = None):
@@ -65,10 +73,24 @@ def grade_answer(req: SubmitAnswerRequest):
         raise HTTPException(status_code=404, detail="해당 문항을 찾을 수 없습니다.")
         
     question = Question(**q_dict)
+    
+    # 해당 문항이 속한 과목 및 세부 토픽 정보 탐색
+    cert = next((c for c in data.get("certifications", []) if c["id"] == question.cert_id), None)
+    subject_name = None
+    topic_info = None
+    
+    if cert:
+        sub = next((s for s in cert.get("subjects", []) if s["code"] == question.subject_code), None)
+        if sub:
+            subject_name = sub.get("name")
+            topic_info = next((t for t in sub.get("key_topics", []) if t["id"] == question.topic_id), None)
+
     result = GradingEngine.grade_answer(
         question=question,
         choice=req.submitted_choice,
-        text=req.submitted_text
+        text=req.submitted_text,
+        topic_info=topic_info,
+        subject_name=subject_name
     )
     return result
 

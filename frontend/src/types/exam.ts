@@ -18,12 +18,33 @@ export interface GradingRubric {
   reference_essay: string;
 }
 
+export interface KeyTopic {
+  id: string;
+  title: string;
+  frequency: string;
+  probability: string;
+  core_concepts: string;
+  practical_point: string;
+  related_terms: string[];
+}
+
+export interface SubjectInfo {
+  subject_no: number;
+  code: string;
+  name: string;
+  description: string;
+  key_topics: KeyTopic[];
+}
+
 export interface Question {
   id: string;
   cert_id: string;
   exam_type: ExamType;
   subject_code: string;
+  topic_id?: string;
   topic_title: string;
+  frequency?: string;
+  probability?: string;
   question_type: QuestionType;
   question_number: number;
   points: number;
@@ -42,6 +63,14 @@ export interface GradingResult {
   missing_keywords: string[];
   feedback: string;
   explanation: string;
+  // 문제 풀이 후 연계 학습 정보
+  subject_name?: string;
+  topic_title?: string;
+  frequency?: string;
+  probability?: string;
+  core_concepts?: string;
+  practical_point?: string;
+  related_terms?: string[];
 }
 
 export interface PassPredictionResult {

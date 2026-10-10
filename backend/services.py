@@ -1,28 +1,43 @@
-from typing import List, Tuple
+from typing import List, Tuple, Dict, Any, Optional
 from schemas import Question, GradingResult, PassPredictionRequest, PassPredictionResult
 
 class GradingEngine:
-    """
-    다형성 채점 엔진:
-    1. 객관식(CBT) 즉시 정답 판정
-    2. 실기 주관식/서술형 루브릭 기반 키워드 매칭 및 부분 점수 채점
-    """
-    
     @staticmethod
-    def grade_answer(question: Question, choice: int = None, text: str = None) -> GradingResult:
+    def grade_answer(
+        question: Question, 
+        choice: int = None, 
+        text: str = None,
+        topic_info: Optional[Dict[str, Any]] = None,
+        subject_name: Optional[str] = None
+    ) -> GradingResult:
+        
+        # 지식 연계 메타 추출
+        core_concepts = topic_info.get("core_concepts") if topic_info else None
+        practical_point = topic_info.get("practical_point") if topic_info else None
+        related_terms = topic_info.get("related_terms", []) if topic_info else []
+        freq = question.frequency or (topic_info.get("frequency") if topic_info else "보통")
+        prob = question.probability or (topic_info.get("probability") if topic_info else "70%")
+
         if question.question_type == "MULTIPLE_CHOICE":
             correct_opt = next((opt for opt in question.options if opt.is_correct), None)
             is_correct = (choice is not None and correct_opt is not None and choice == correct_opt.option_no)
             score = question.points if is_correct else 0.0
             
-            feedback = "정답입니다!" if is_correct else f"오답입니다. (정답: {correct_opt.option_no}번)"
+            feedback = "정답입니다! 핵심 개념을 정확히 숙지하고 있습니다." if is_correct else f"오답입니다. (정답: {correct_opt.option_no}번)"
             return GradingResult(
                 question_id=question.id,
                 is_correct=is_correct,
                 score=score,
                 max_score=question.points,
                 feedback=feedback,
-                explanation=question.explanation or ""
+                explanation=question.explanation or "",
+                subject_name=subject_name,
+                topic_title=question.topic_title,
+                frequency=freq,
+                probability=prob,
+                core_concepts=core_concepts,
+                practical_point=practical_point,
+                related_terms=related_terms
             )
             
         elif question.question_type in ["ESSAY", "SHORT_ANSWER"]:
@@ -34,7 +49,14 @@ class GradingEngine:
                     score=0.0,
                     max_score=question.points,
                     feedback="답안이 비어 있거나 채점 기준이 없습니다.",
-                    explanation=question.explanation or ""
+                    explanation=question.explanation or "",
+                    subject_name=subject_name,
+                    topic_title=question.topic_title,
+                    frequency=freq,
+                    probability=prob,
+                    core_concepts=core_concepts,
+                    practical_point=practical_point,
+                    related_terms=related_terms
                 )
                 
             matched_kws = []
@@ -43,7 +65,6 @@ class GradingEngine:
             normalized_text = text.lower()
             
             for item in rubric.mandatory_keywords:
-                # 본문 내 키워드 또는 유의어 포함 여부 탐색
                 all_variants = [item.keyword.lower()] + [s.lower() for s in item.synonyms]
                 if any(var in normalized_text for var in all_variants):
                     matched_kws.append(item.keyword)
@@ -51,13 +72,12 @@ class GradingEngine:
                 else:
                     missing_kws.append(item.keyword)
                     
-            # 점수 상한 클리핑
             final_score = min(earned_score, question.points)
-            is_correct = (final_score >= question.points * 0.7)  # 70% 이상 득점 시 정답/합격권 인정
+            is_correct = (final_score >= question.points * 0.7)
             
             feedback_parts = []
             if matched_kws:
-                feedback_parts.append(f"✅ 포함된 핵심 키워드: {', '.join(matched_kws)}")
+                feedback_parts.append(f"✅ 포함된 필수 키워드: {', '.join(matched_kws)}")
             if missing_kws:
                 feedback_parts.append(f"⚠️ 누락된 필수 개념: {', '.join(missing_kws)}")
                 
@@ -69,7 +89,14 @@ class GradingEngine:
                 matched_keywords=matched_kws,
                 missing_keywords=missing_kws,
                 feedback="\n".join(feedback_parts),
-                explanation=question.explanation or ""
+                explanation=question.explanation or "",
+                subject_name=subject_name,
+                topic_title=question.topic_title,
+                frequency=freq,
+                probability=prob,
+                core_concepts=core_concepts,
+                practical_point=practical_point,
+                related_terms=related_terms
             )
             
         return GradingResult(
@@ -78,14 +105,18 @@ class GradingEngine:
             score=0.0,
             max_score=question.points,
             feedback="지원되지 않는 문제 유형입니다.",
-            explanation=""
+            explanation="",
+            subject_name=subject_name,
+            topic_title=question.topic_title,
+            frequency=freq,
+            probability=prob,
+            core_concepts=core_concepts,
+            practical_point=practical_point,
+            related_terms=related_terms
         )
 
 
 class PredictionEngine:
-    """
-    자격증 합격 예측 및 과락 위험도 분석 엔진
-    """
     @staticmethod
     def predict(req: PassPredictionRequest, passing_criteria: dict) -> PassPredictionResult:
         scores = list(req.subject_scores.values())
@@ -110,7 +141,6 @@ class PredictionEngine:
         has_failing = len(failing_subs) > 0
         is_passed = (avg_score >= passing_avg) and not has_failing
         
-        # 합격 확률 통계 모델(간이 휴리스틱)
         if has_failing:
             prob = max(10.0, (avg_score / 100.0) * 40.0)
             report = f"⚠️ 과락 발생! ({', '.join(failing_subs)}) 과목이 기준점({failing_limit}점) 미만입니다. 해당 과목 집중 보완이 시급합니다."

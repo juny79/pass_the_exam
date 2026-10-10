@@ -24,11 +24,163 @@
         }
       },
       "subjects": [
-        {"subject_no": 1, "code": "SYS_SEC", "name": "시스템 보안"},
-        {"subject_no": 2, "code": "NET_SEC", "name": "네트워크 보안"},
-        {"subject_no": 3, "code": "APP_SEC", "name": "애플리케이션 보안"},
-        {"subject_no": 4, "code": "GEN_SEC", "name": "정보보안 일반"},
-        {"subject_no": 5, "code": "LAW_MGT", "name": "정보보안 관리 및 법규"}
+        {
+          "subject_no": 1,
+          "code": "SYS_SEC",
+          "name": "시스템 보안",
+          "description": "운영체제(Linux, Windows) 구조, 계정 및 접근통제, 파일시스템 권한, 로그 분석 및 시스템 침해공격/취약점 대응",
+          "key_topics": [
+            {
+              "id": "SYS_01",
+              "title": "버퍼 오버플로우(Buffer Overflow) 공격 및 보호 기법",
+              "frequency": "매우 높음 (필기/실기 빈출)",
+              "probability": "95%",
+              "core_concepts": "스택/힙 오버플로우 원리, NOP Sled, Return Address 변조, 보호 기법(ASLR, DEP/NX, Stack Canary, SafeSEH)",
+              "practical_point": "gdb를 이용한 스택 프레임 분석 및 gcc 컴파일 옵션(-fno-stack-protector, -z execstack 등) 출제",
+              "related_terms": ["ASLR", "DEP/NX", "Stack Canary", "Shellcode", "RET Sled"]
+            },
+            {
+              "id": "SYS_02",
+              "title": "리눅스 계정/권한 및 SetUID 취약점",
+              "frequency": "매우 높음",
+              "probability": "90%",
+              "core_concepts": "/etc/passwd, /etc/shadow 패스워드 해시 구조, 특수 권한(SetUID, SetGID, Sticky Bit), umask 계산",
+              "practical_point": "find / -perm -4000 명령어를 통한 SetUID 취약 파일 점검 및 제거 스크립트 작성",
+              "related_terms": ["SetUID", "Sticky Bit", "Shadow File", "umask", "PAM"]
+            },
+            {
+              "id": "SYS_03",
+              "title": "리눅스/윈도우 시스템 감사 로그 분석",
+              "frequency": "높음 (실기 14점 단골)",
+              "probability": "85%",
+              "core_concepts": "wtmp(last), utmp(who), btmp(lastb), lastlog, secure/auth.log, 윈도우 이벤트 뷰어(Event ID 4624/4625)",
+              "practical_point": "침해사고 발생 시 공격자의 로그인 시간, IP, 실패 흔적을 로그에서 추출하고 역추적하는 시나리오",
+              "related_terms": ["utmp", "wtmp", "btmp", "Event ID 4625", "syslog.conf"]
+            }
+          ]
+        },
+        {
+          "subject_no": 2,
+          "code": "NET_SEC",
+          "name": "네트워크 보안",
+          "description": "네트워크 계층별 프로토콜 취약점, DoS/DDoS 공격, 네트워크 장비(라우터, 스위치), 침입탐지(Snort) 및 방화벽(iptables)",
+          "key_topics": [
+            {
+              "id": "NET_01",
+              "title": "서비스 거부(DoS/DDoS) 공격 및 방어 기법",
+              "frequency": "최고 빈도 (필기 3~5문항, 실기 단답/서술 필수)",
+              "probability": "98%",
+              "core_concepts": "TCP SYN Flooding, Land Attack, Smurf, Teardrop, Bonk/Boink, HTTP Slowloris, Slow Read, NTP/DNS 증폭 공격",
+              "practical_point": "TCP SYN Cookie 메커니즘 서술(ISN 인코딩), sysctl 커널 튜닝, iptables connlimit/limit 룰 작성",
+              "related_terms": ["SYN Cookie", "Backlog Queue", "Slowloris", "Smurf Attack", "DRDoS"]
+            },
+            {
+              "id": "NET_02",
+              "title": "Snort NIDS 룰셋 작성 및 시그니처 분석",
+              "frequency": "매우 높음 (실기 서술/실무 10~14점)",
+              "probability": "90%",
+              "core_concepts": "Rule Header(action, proto, src_ip, src_port, direction, dst_ip, dst_port)와 Rule Option(msg, content, depth, offset, sid, rev)",
+              "practical_point": "특정 웹 공격(SQLi, XSS, 패스워드 무차별 대입) 차단 및 탐지를 위한 alert/drop 룰 직접 작성",
+              "related_terms": ["Snort Rule", "content", "nocase", "offset/depth", "sid"]
+            },
+            {
+              "id": "NET_03",
+              "title": "IPSec 및 VPN 보안 프로토콜",
+              "frequency": "높음",
+              "probability": "80%",
+              "core_concepts": "AH(무결성/인증), ESP(기밀성/무결성/인증), 전송 모드 vs 터널 모드, IKE 1/2단계 키 교환",
+              "practical_point": "AH와 ESP의 패킷 헤더 구조 차이점 및 NAT-Traversal 환경에서의 동작 한계점 비교",
+              "related_terms": ["AH", "ESP", "IKE", "SA(Security Association)", "Tunnel Mode"]
+            }
+          ]
+        },
+        {
+          "subject_no": 3,
+          "code": "APP_SEC",
+          "name": "애플리케이션 보안",
+          "description": "웹 애플리케이션 취약점(OWASP Top 10), 데이터베이스 보안(SQL Injection), 전자우편/DNS 보안, 안전한 소프트웨어 개발",
+          "key_topics": [
+            {
+              "id": "APP_01",
+              "title": "SQL Injection 및 방어(PreparedStatement)",
+              "frequency": "최고 빈도 (필기/실기 불변의 1위)",
+              "probability": "95%",
+              "core_concepts": "Error-based, Union-based, Blind SQLi(Boolean/Time-based), 정적 쿼리 바인딩, Mybatis # vs $ 차이점",
+              "practical_point": "PreparedStatement(매개변수화된 쿼리) 동작 원리(문법 파싱 후 값 바인딩)와 시큐어 코딩 적용법",
+              "related_terms": ["PreparedStatement", "Blind SQLi", "Union Injection", "MyBatis #{}", "입력값 검증"]
+            },
+            {
+              "id": "APP_02",
+              "title": "XSS (Cross-Site Scripting) & CSRF",
+              "frequency": "매우 높음",
+              "probability": "90%",
+              "core_concepts": "Stored XSS, Reflected XSS, DOM-based XSS, HttpOnly 쿠키 플래그, SameSite 플래그, CSRF Token",
+              "practical_point": "XSS와 CSRF의 공격 주체 및 목적 차이(XSS: 사용자 권한 탈취 vs CSRF: 사용자 권한 도용 행위 요청)",
+              "related_terms": ["Stored XSS", "Reflected XSS", "CSRF Token", "HttpOnly", "SameSite"]
+            },
+            {
+              "id": "APP_03",
+              "title": "이메일 인증 보안 (SPF, DKIM, DMARC)",
+              "frequency": "상승세 (최근 실기 단답형 빈출)",
+              "probability": "85%",
+              "core_concepts": "발신자 위조 방지: SPF(DNS TXT 기반 허용 IP 등록), DKIM(전자서명), DMARC(SPF/DKIM 통합 정책)",
+              "practical_point": "DNS 레코드 설정 형식(v=spf1 ip4:... ~all) 분석 및 차단 정책 구성",
+              "related_terms": ["SPF Record", "DKIM", "DMARC", "SMTP Header", "DNS TXT"]
+            }
+          ]
+        },
+        {
+          "subject_no": 4,
+          "code": "GEN_SEC",
+          "name": "정보보안 일반",
+          "description": "보안 3대 요소(CIA), 암호학(대칭키/비대칭키, 해시함수, 전자서명), 전자서명 및 PKI 구조, 접근통제 모델",
+          "key_topics": [
+            {
+              "id": "GEN_01",
+              "title": "대칭키 vs 공개키 암호 알고리즘",
+              "frequency": "매우 높음 (필기 다수 출제)",
+              "probability": "90%",
+              "core_concepts": "대칭키(AES, DES, ARIA, SEED), 블록암호 모드(ECB, CBC, CTR, GCM), 공개키(RSA, ECC, ElGamal), 키 교환(DH)",
+              "practical_point": "블록 암호화 운용 모드 중 CBC의 IV 필요성과 CTR/GCM의 병렬처리 장단점 서술",
+              "related_terms": ["AES", "ARIA/SEED", "RSA", "CBC Mode", "IV(Initialization Vector)"]
+            },
+            {
+              "id": "GEN_02",
+              "title": "접근통제 모델 (DAC, MAC, RBAC)",
+              "frequency": "높음",
+              "probability": "85%",
+              "core_concepts": "DAC(신분 기반), MAC(강제적, 보안라벨/인가등급, Bell-LaPadula, Biba), RBAC(역할 기반)",
+              "practical_point": "BLP 모델의 기밀성 규칙(No Read Up, No Write Down)과 Biba 모델의 무결성 규칙 비교",
+              "related_terms": ["Bell-LaPadula", "Biba", "MAC", "DAC", "RBAC"]
+            }
+          ]
+        },
+        {
+          "subject_no": 5,
+          "code": "LAW_MGT",
+          "name": "정보보안 관리 및 법규",
+          "description": "ISMS-P 인증기준, 개인정보보호법, 정보통신망법, 정보통신기반보호법, 위험관리 및 업무연속성계획(BCP/DRP)",
+          "key_topics": [
+            {
+              "id": "LAW_01",
+              "title": "ISMS-P 인증 관리체계 및 주요 점검항목",
+              "frequency": "최고 빈도 (실기 10점~14점 단골 서술)",
+              "probability": "95%",
+              "core_concepts": "관리체계 수립 및 운영(16개), 보호대책 요구사항(64개), 개인정보 처리단계별 요구사항(22개) 총 102개 항목",
+              "practical_point": "비밀번호 작성규칙, 접속기록 보관 기간(1년/2년), 망분리 대상 기준 및 예외 기준",
+              "related_terms": ["ISMS-P", "보호대책", "접속기록 보관(1년 이상)", "망분리", "위험평가"]
+            },
+            {
+              "id": "LAW_02",
+              "title": "개인정보보호법 주요 규정 및 안전성 확보조치 기준",
+              "frequency": "매우 높음",
+              "probability": "95%",
+              "core_concepts": "고유식별정보 암호화 대상(주민등록번호, 여권번호, 운전면허번호, 외국인등록번호), 개인정보 파기 절차, 유출 통지 기준",
+              "practical_point": "개인정보 유출 시 통지/신고 기한(72시간 이내), 안전성 확보조치 기준 고시상 암호화 저장 의무",
+              "related_terms": ["고유식별정보", "안전성 확보조치", "72시간 신고", "비식별 조치", "가명정보"]
+            }
+          ]
+        }
       ]
     }
   ],
@@ -38,7 +190,10 @@
       "cert_id": "is_engineer",
       "exam_type": "WRITTEN",
       "subject_code": "NET_SEC",
-      "topic_title": "서비스 거부(DoS) 공격 및 대응",
+      "topic_id": "NET_01",
+      "topic_title": "서비스 거부(DoS/DDoS) 공격 및 방어 기법",
+      "frequency": "최고 빈도 (필기 3~5문항, 실기 단답/서술 필수)",
+      "probability": "98%",
       "question_type": "MULTIPLE_CHOICE",
       "question_number": 21,
       "points": 1.0,
@@ -56,7 +211,10 @@
       "cert_id": "is_engineer",
       "exam_type": "PRACTICAL",
       "subject_code": "NET_SEC",
-      "topic_title": "네트워크 침입 탐지 및 방화벽",
+      "topic_id": "NET_01",
+      "topic_title": "서비스 거부(DoS/DDoS) 공격 및 방어 기법",
+      "frequency": "최고 빈도 (필기 3~5문항, 실기 단답/서술 필수)",
+      "probability": "98%",
       "question_type": "ESSAY",
       "question_number": 11,
       "points": 10.0,
@@ -70,6 +228,70 @@
         "reference_essay": "(1) 공격 명칭: TCP SYN Flooding 공격이다.\n(2) 대응 메커니즘: SYN Cookie(싱키) 기법이다. 서버는 클라이언트의 초기 SYN 요청 수신 시 Backlog Queue에 TCB(Transmission Control Block)를 미리 할당하지 않고, 연결 정보를 암호화 해시한 쿠키 값을 Initial Sequence Number(ISN)로 만들어 SYN-ACK를 응답한다. 이후 정상적인 클라이언트로부터 올바른 ACK 패킷이 반환될 때 검증하여 연결을 수립함으로써 큐 자원 고갈을 방지한다."
       },
       "explanation": "TCP SYN Flooding의 원리와 커널 레벨의 SYN Cookie 동작 메커니즘(Backlog Queue 미할당 및 ISN 인코딩)을 정확한 키워드로 서술해야 감점이 없습니다."
+    },
+    {
+      "id": "q-practical-002",
+      "cert_id": "is_engineer",
+      "exam_type": "PRACTICAL",
+      "subject_code": "SYS_SEC",
+      "topic_id": "SYS_01",
+      "topic_title": "버퍼 오버플로우(Buffer Overflow) 공격 및 보호 기법",
+      "frequency": "매우 높음 (필기/실기 빈출)",
+      "probability": "95%",
+      "question_type": "ESSAY",
+      "question_number": 12,
+      "points": 10.0,
+      "stem": "리눅스 시스템에서 버퍼 오버플로우 공격을 완화하기 위한 보안 기법 중, (1) 프로세스가 실행될 때마다 스택, 힙, 라이브러리의 메모리 매핑 주소를 무작위로 변경하는 기술의 명칭과, (2) 스택 버퍼와 리턴 주소 사이에 특정한 검증 값을 삽입하여 훼손 여부를 감지하는 보호 기법의 명칭을 기술하시오.",
+      "rubric": {
+        "mandatory_keywords": [
+          {"keyword": "ASLR", "points": 5.0, "synonyms": ["Address Space Layout Randomization", "주소 공간 배치 난수화"]},
+          {"keyword": "Stack Canary", "points": 5.0, "synonyms": ["스택 카나리", "Canary", "카나리"]}
+        ],
+        "reference_essay": "(1) ASLR (Address Space Layout Randomization, 주소 공간 배치 난수화)\n(2) Stack Canary (스택 카나리) 기법이다."
+      },
+      "explanation": "ASLR은 공격자가 고정된 쉘코드나 libc 주소로 RET를 조작하지 못하도록 메모리 주소를 난수화하며, Stack Canary는 함수 에필로그에서 카나리 값의 변조 여부를 체크하여 오버플로우를 감지합니다."
+    },
+    {
+      "id": "q-written-002",
+      "cert_id": "is_engineer",
+      "exam_type": "WRITTEN",
+      "subject_code": "APP_SEC",
+      "topic_id": "APP_01",
+      "topic_title": "SQL Injection 및 방어(PreparedStatement)",
+      "frequency": "최고 빈도 (필기/실기 불변의 1위)",
+      "probability": "95%",
+      "question_type": "MULTIPLE_CHOICE",
+      "question_number": 45,
+      "points": 1.0,
+      "stem": "웹 애플리케이션 시큐어 코딩에서 SQL Injection 공격을 방어하기 위해 사용하는 PreparedStatement(매개변수화된 쿼리)의 보안상 핵심 동작 원리로 가장 알맞은 것은?",
+      "options": [
+        {"option_no": 1, "content": "사용자의 입력값을 특수문자 HTML 엔티티로 자동 치환한다.", "is_correct": false},
+        {"option_no": 2, "content": "데이터베이스 쿼리 문법을 미리 파싱/컴파일해두고, 입력값은 단순 상수로만 바인딩한다.", "is_correct": true},
+        {"option_no": 3, "content": "모든 SQL 쿼리를 대칭키 알고리즘으로 암호화하여 전송한다.", "is_correct": false},
+        {"option_no": 4, "content": "웹 방화벽(WAF)을 통과한 쿼리만 선별적으로 실행한다.", "is_correct": false}
+      ],
+      "explanation": "PreparedStatement는 DB 엔진이 SQL 문법 구조(AST)를 미리 파싱하고 컴파일한 후, 사용자의 입력값을 단순 데이터(리터럴)로 취급하여 바인딩하므로 악의적인 SQL 문법 변조가 원천적으로 불가능합니다."
+    },
+    {
+      "id": "q-written-003",
+      "cert_id": "is_engineer",
+      "exam_type": "WRITTEN",
+      "subject_code": "LAW_MGT",
+      "topic_id": "LAW_02",
+      "topic_title": "개인정보보호법 주요 규정 및 안전성 확보조치 기준",
+      "frequency": "매우 높음",
+      "probability": "95%",
+      "question_type": "MULTIPLE_CHOICE",
+      "question_number": 85,
+      "points": 1.0,
+      "stem": "개인정보보호법령 및 '개인정보의 안전성 확보조치 기준'에 따라 정보처리시스템에 저장할 때 반드시 암호화해야 하는 고유식별정보의 종류로만 짝지어진 것은?",
+      "options": [
+        {"option_no": 1, "content": "주민등록번호, 여권번호, 운전면허번호, 외국인등록번호", "is_correct": true},
+        {"option_no": 2, "content": "주민등록번호, 생년월일, 신용카드번호, 계좌번호", "is_correct": false},
+        {"option_no": 3, "content": "여권번호, 외국인등록번호, 전화번호, 이메일주소", "is_correct": false},
+        {"option_no": 4, "content": "주민등록번호, 생체인식정보, 성명, 자택주소", "is_correct": false}
+      ],
+      "explanation": "개인정보보호법상 법정 고유식별정보 4종은 '주민등록번호, 여권번호, 운전면허번호, 외국인등록번호'입니다. 이를 정보통신망을 통해 송수신하거나 저장 시에는 반드시 안전한 암호 알고리즘으로 암호화해야 합니다."
     }
   ]
 }

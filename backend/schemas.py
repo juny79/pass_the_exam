@@ -26,12 +26,33 @@ class GradingRubric(BaseModel):
     mandatory_keywords: List[KeywordRubric] = []
     reference_essay: str
 
+# 과목별 지식 토픽 상세 모델
+class KeyTopic(BaseModel):
+    id: str
+    title: str
+    frequency: str
+    probability: str
+    core_concepts: str
+    practical_point: str
+    related_terms: List[str] = []
+
+class SubjectInfo(BaseModel):
+    subject_no: int
+    code: str
+    name: str
+    description: str
+    key_topics: List[KeyTopic] = []
+
+# 문항 모델 (지식 연계 필드 포함)
 class Question(BaseModel):
     id: str
     cert_id: str
     exam_type: ExamType
     subject_code: str
+    topic_id: Optional[str] = None
     topic_title: str
+    frequency: Optional[str] = None
+    probability: Optional[str] = None
     question_type: QuestionType
     question_number: int
     points: float
@@ -40,7 +61,7 @@ class Question(BaseModel):
     rubric: Optional[GradingRubric] = None
     explanation: Optional[str] = None
 
-# 채점 요청 및 응답 모델
+# 채점 요청 및 지식 연계 분석 결과
 class SubmitAnswerRequest(BaseModel):
     question_id: str
     submitted_choice: Optional[int] = None
@@ -55,12 +76,20 @@ class GradingResult(BaseModel):
     missing_keywords: List[str] = []
     feedback: str
     explanation: str
+    # 지식 연계 메타데이터
+    subject_name: Optional[str] = None
+    topic_title: Optional[str] = None
+    frequency: Optional[str] = None
+    probability: Optional[str] = None
+    core_concepts: Optional[str] = None
+    practical_point: Optional[str] = None
+    related_terms: List[str] = []
 
-# 합격 예측 요청/응답 모델
+# 합격 예측 모델
 class PassPredictionRequest(BaseModel):
     cert_id: str
     exam_type: ExamType
-    subject_scores: Dict[str, float]  # e.g., {"SYS_SEC": 65, "NET_SEC": 55, ...}
+    subject_scores: Dict[str, float]
 
 class PassPredictionResult(BaseModel):
     is_passed: bool

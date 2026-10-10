@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Question, GradingResult, PassPredictionResult } from '../types/exam';
+import { Question, GradingResult, PassPredictionResult, SubjectInfo } from '../types/exam';
 import { 
   ShieldCheck, 
   BookOpen, 
@@ -12,14 +12,20 @@ import {
   Sparkles, 
   TrendingUp,
   Cpu,
-  RefreshCw
+  RefreshCw,
+  Layers,
+  Target,
+  Hash,
+  ChevronRight
 } from 'lucide-react';
 
-const API_BASE = 'http://127.0.0.1:8000';
+const API_BASE = 'http://127.0.0.1:8081';
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<'WRITTEN' | 'PRACTICAL' | 'PREDICTION'>('WRITTEN');
+  const [activeTab, setActiveTab] = useState<'WRITTEN' | 'PRACTICAL' | 'SUBJECTS' | 'PREDICTION'>('WRITTEN');
   const [questions, setQuestions] = useState<Question[]>([]);
+  const [subjects, setSubjects] = useState<SubjectInfo[]>([]);
+  const [selectedSubjectCode, setSelectedSubjectCode] = useState<string>('ALL');
   const [loading, setLoading] = useState<boolean>(true);
 
   // CBT / 실기 입력 상태
@@ -40,19 +46,27 @@ export default function Home() {
   const [predictLoading, setPredictLoading] = useState(false);
 
   useEffect(() => {
-    fetchQuestions();
+    fetchInitialData();
   }, []);
 
-  const fetchQuestions = async () => {
+  const fetchInitialData = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/api/questions?cert_id=is_engineer`);
-      if (res.ok) {
-        const data = await res.json();
-        setQuestions(data);
+      const [qRes, sRes] = await Promise.all([
+        fetch(`${API_BASE}/api/questions?cert_id=is_engineer`),
+        fetch(`${API_BASE}/api/subjects?cert_id=is_engineer`),
+      ]);
+
+      if (qRes.ok) {
+        const qData = await qRes.json();
+        setQuestions(qData);
+      }
+      if (sRes.ok) {
+        const sData = await sRes.json();
+        setSubjects(sData);
       }
     } catch (err) {
-      console.error('Failed to fetch questions:', err);
+      console.error('Failed to fetch initial data:', err);
     } finally {
       setLoading(false);
     }
@@ -108,29 +122,31 @@ export default function Home() {
     }
   };
 
-  const currentQuestions = questions.filter((q) => q.exam_type === activeTab);
+  const filteredQuestions = questions
+    .filter((q) => q.exam_type === activeTab)
+    .filter((q) => selectedSubjectCode === 'ALL' || q.subject_code === selectedSubjectCode);
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
-      {/* 상단 네비게이션 */}
-      <header className="border-b border-slate-800 bg-slate-900/80 backdrop-blur sticky top-0 z-50 px-6 py-4 flex items-center justify-between">
+      {/* 상단 헤더 */}
+      <header className="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-50 px-6 py-4 flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-indigo-600 rounded-xl text-white shadow-lg shadow-indigo-500/30">
+          <div className="p-2.5 bg-indigo-600 rounded-xl text-white shadow-lg shadow-indigo-500/30">
             <ShieldCheck className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-xl font-bold tracking-tight bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
+            <h1 className="text-xl font-bold tracking-tight bg-gradient-to-r from-white via-indigo-200 to-slate-400 bg-clip-text text-transparent">
               PassForge : 정보보안기사
             </h1>
-            <p className="text-xs text-slate-400">지능형 자격증 합격 전략 & AI 실기 채점 플랫폼</p>
+            <p className="text-xs text-slate-400">5대 과목 핵심 지식 연계 & AI 실기 채점 합격전략 플랫폼</p>
           </div>
         </div>
 
         {/* 탭 네비게이션 */}
-        <div className="flex bg-slate-800/80 p-1 rounded-xl border border-slate-700/60">
+        <div className="flex bg-slate-800/90 p-1.5 rounded-xl border border-slate-700/60 overflow-x-auto">
           <button
             onClick={() => setActiveTab('WRITTEN')}
-            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+            className={`px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition-all ${
               activeTab === 'WRITTEN'
                 ? 'bg-indigo-600 text-white shadow'
                 : 'text-slate-400 hover:text-slate-200'
@@ -140,7 +156,7 @@ export default function Home() {
           </button>
           <button
             onClick={() => setActiveTab('PRACTICAL')}
-            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+            className={`px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition-all ${
               activeTab === 'PRACTICAL'
                 ? 'bg-indigo-600 text-white shadow'
                 : 'text-slate-400 hover:text-slate-200'
@@ -149,24 +165,100 @@ export default function Home() {
             실기 AI 서술형 채점
           </button>
           <button
+            onClick={() => setActiveTab('SUBJECTS')}
+            className={`px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition-all ${
+              activeTab === 'SUBJECTS'
+                ? 'bg-indigo-600 text-white shadow'
+                : 'text-slate-400 hover:text-slate-200'
+            }`}
+          >
+            5대 과목 핵심 지식베이스
+          </button>
+          <button
             onClick={() => setActiveTab('PREDICTION')}
-            className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+            className={`px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition-all ${
               activeTab === 'PREDICTION'
                 ? 'bg-indigo-600 text-white shadow'
                 : 'text-slate-400 hover:text-slate-200'
             }`}
           >
-            합격 및 과락 예측
+            합격/과락 예측
           </button>
         </div>
       </header>
 
-      {/* 메인 컨텐츠 영역 */}
+      {/* 메인 컨텐츠 */}
       <main className="flex-1 max-w-5xl w-full mx-auto p-6 md:p-8 space-y-8">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-24 space-y-4 text-slate-400">
             <RefreshCw className="w-8 h-8 animate-spin text-indigo-500" />
-            <p>문항 데이터 로딩 중...</p>
+            <p>지식 베이스 및 문항 데이터 로딩 중...</p>
+          </div>
+        ) : activeTab === 'SUBJECTS' ? (
+          /* ================= 5대 과목 핵심 지식베이스 브라우저 ================= */
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-xl font-bold flex items-center gap-2">
+                  <BookOpen className="w-5 h-5 text-indigo-400" />
+                  정보보안기사 5대 영역 지식 체계 및 출제 분석
+                </h2>
+                <p className="text-xs text-slate-400 mt-1">
+                  KCA 공식 출제기준에 맞춘 과목별 빈출 핵심 개념과 실기 채점 공략 포인트
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              {subjects.map((sub) => (
+                <div key={sub.code} className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
+                  <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+                    <div className="flex items-center gap-3">
+                      <span className="w-7 h-7 rounded-lg bg-indigo-500/20 border border-indigo-500/40 text-indigo-300 flex items-center justify-center font-black text-xs">
+                        {sub.subject_no}
+                      </span>
+                      <h3 className="text-lg font-bold text-white">{sub.name}</h3>
+                      <span className="text-xs font-mono text-slate-500">[{sub.code}]</span>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-slate-300 leading-relaxed bg-slate-950 p-3 rounded-xl border border-slate-850">
+                    {sub.description}
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                    {sub.key_topics.map((t) => (
+                      <div key={t.id} className="bg-slate-950/80 border border-slate-800/80 rounded-xl p-4 flex flex-col justify-between hover:border-slate-700 transition">
+                        <div>
+                          <div className="flex items-center justify-between gap-2 mb-2">
+                            <span className="text-xs font-bold text-indigo-300">{t.title}</span>
+                            <span className="text-[10px] px-2 py-0.5 bg-amber-500/10 text-amber-300 border border-amber-500/30 rounded-full font-semibold">
+                              출제확률 {t.probability}
+                            </span>
+                          </div>
+
+                          <div className="text-xs text-slate-400 mb-2 leading-relaxed">
+                            <strong className="text-slate-300">핵심 내용:</strong> {t.core_concepts}
+                          </div>
+
+                          <div className="text-xs text-emerald-400/90 mb-3 leading-relaxed">
+                            <strong className="text-emerald-300">실기 공략:</strong> {t.practical_point}
+                          </div>
+                        </div>
+
+                        <div className="flex flex-wrap gap-1.5 pt-2 border-t border-slate-900">
+                          {t.related_terms.map((term, idx) => (
+                            <span key={idx} className="text-[11px] px-2 py-0.5 bg-slate-900 text-slate-400 rounded-md border border-slate-800">
+                              #{term}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         ) : activeTab === 'PREDICTION' ? (
           /* ================= 합격 예측 시뮬레이터 ================= */
@@ -253,136 +345,233 @@ export default function Home() {
             )}
           </div>
         ) : (
-          /* ================= 문제 풀이 영역 (필기 or 실기) ================= */
-          <div className="space-y-8">
-            {currentQuestions.map((q) => {
-              const result = gradingResults[q.id];
-              const isGrading = gradingLoading[q.id];
-
-              return (
-                <div
-                  key={q.id}
-                  className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden"
+          /* ================= 문제 풀이 영역 (필기 CBT or 실기 서술형) ================= */
+          <div className="space-y-6">
+            {/* 과목 필터 버튼 */}
+            <div className="flex items-center gap-2 overflow-x-auto pb-2">
+              <span className="text-xs text-slate-400 font-semibold whitespace-nowrap">과목 필터:</span>
+              <button
+                onClick={() => setSelectedSubjectCode('ALL')}
+                className={`px-3 py-1 rounded-lg text-xs font-medium transition ${
+                  selectedSubjectCode === 'ALL'
+                    ? 'bg-indigo-600 text-white'
+                    : 'bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800'
+                }`}
+              >
+                전체 과목
+              </button>
+              {subjects.map((s) => (
+                <button
+                  key={s.code}
+                  onClick={() => setSelectedSubjectCode(s.code)}
+                  className={`px-3 py-1 rounded-lg text-xs font-medium transition whitespace-nowrap ${
+                    selectedSubjectCode === s.code
+                      ? 'bg-indigo-600 text-white'
+                      : 'bg-slate-900 text-slate-400 hover:text-slate-200 border border-slate-800'
+                  }`}
                 >
-                  {/* 문항 헤더 */}
-                  <div className="flex items-center justify-between gap-4 mb-4 pb-4 border-b border-slate-800">
-                    <div className="flex items-center gap-2">
-                      <span className="px-2.5 py-1 bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 text-xs font-bold rounded-md">
-                        {q.subject_code}
-                      </span>
-                      <span className="text-xs text-slate-400">#{q.question_number}번 문항</span>
-                      <span className="text-xs text-slate-500">| {q.topic_title}</span>
+                  {s.name}
+                </button>
+              ))}
+            </div>
+
+            {/* 문항 목록 */}
+            <div className="space-y-8">
+              {filteredQuestions.map((q) => {
+                const result = gradingResults[q.id];
+                const isGrading = gradingLoading[q.id];
+
+                return (
+                  <div
+                    key={q.id}
+                    className="bg-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-xl relative overflow-hidden"
+                  >
+                    {/* 문항 헤더 */}
+                    <div className="flex flex-wrap items-center justify-between gap-3 mb-4 pb-4 border-b border-slate-800">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2.5 py-1 bg-indigo-500/20 text-indigo-400 border border-indigo-500/30 text-xs font-bold rounded-md">
+                          {q.subject_code}
+                        </span>
+                        <span className="text-xs text-slate-400 font-medium">#{q.question_number}번 문항</span>
+                        <span className="text-xs text-slate-300 font-semibold">| {q.topic_title}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {q.probability && (
+                          <span className="text-[11px] px-2 py-0.5 bg-amber-500/10 text-amber-300 border border-amber-500/30 rounded font-semibold">
+                            출제확률 {q.probability}
+                          </span>
+                        )}
+                        <span className="text-xs font-semibold text-slate-400">배점 {q.points}점</span>
+                      </div>
                     </div>
-                    <span className="text-xs font-semibold text-slate-400">배점 {q.points}점</span>
-                  </div>
 
-                  {/* 지문 */}
-                  <div className="text-base text-slate-200 font-medium mb-6 leading-relaxed whitespace-pre-wrap">
-                    {q.stem}
-                  </div>
+                    {/* 지문 */}
+                    <div className="text-base text-slate-200 font-medium mb-6 leading-relaxed whitespace-pre-wrap">
+                      {q.stem}
+                    </div>
 
-                  {/* 문항 입력 영역 */}
-                  {q.question_type === 'MULTIPLE_CHOICE' && q.options && (
-                    <div className="space-y-3 mb-6">
-                      {q.options.map((opt) => {
-                        const isSelected = selectedChoices[q.id] === opt.option_no;
-                        return (
-                          <div
-                            key={opt.option_no}
-                            onClick={() => setSelectedChoices({ ...selectedChoices, [q.id]: opt.option_no })}
-                            className={`p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
-                              isSelected
-                                ? 'bg-indigo-600/20 border-indigo-500 text-white shadow-inner'
-                                : 'bg-slate-950/60 border-slate-800 hover:border-slate-700 text-slate-300'
-                            }`}
-                          >
-                            <div className="flex items-center gap-3">
-                              <span
-                                className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                                  isSelected ? 'bg-indigo-500 text-white' : 'bg-slate-800 text-slate-400'
-                                }`}
-                              >
-                                {opt.option_no}
+                    {/* 객관식 보기 */}
+                    {q.question_type === 'MULTIPLE_CHOICE' && q.options && (
+                      <div className="space-y-3 mb-6">
+                        {q.options.map((opt) => {
+                          const isSelected = selectedChoices[q.id] === opt.option_no;
+                          return (
+                            <div
+                              key={opt.option_no}
+                              onClick={() => setSelectedChoices({ ...selectedChoices, [q.id]: opt.option_no })}
+                              className={`p-4 rounded-xl border transition-all cursor-pointer flex items-center justify-between ${
+                                isSelected
+                                  ? 'bg-indigo-600/20 border-indigo-500 text-white shadow-inner'
+                                  : 'bg-slate-950/60 border-slate-800 hover:border-slate-700 text-slate-300'
+                              }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <span
+                                  className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                                    isSelected ? 'bg-indigo-500 text-white' : 'bg-slate-800 text-slate-400'
+                                  }`}
+                                >
+                                  {opt.option_no}
+                                </span>
+                                <span className="text-sm font-medium">{opt.content}</span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* 실기 서술형 에디터 */}
+                    {q.question_type === 'ESSAY' && (
+                      <div className="mb-6 space-y-2">
+                        <label className="text-xs font-semibold text-slate-400 flex items-center gap-1">
+                          <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
+                          실기 서술형 답안 작성 (핵심 키워드 중심 서술)
+                        </label>
+                        <textarea
+                          rows={5}
+                          placeholder="공격 명칭, 동작 원리, 커널 파라미터 또는 대응 방안을 키워드 기반으로 서술하세요..."
+                          value={essayAnswers[q.id] || ''}
+                          onChange={(e) => setEssayAnswers({ ...essayAnswers, [q.id]: e.target.value })}
+                          className="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500 leading-relaxed font-mono"
+                        />
+                      </div>
+                    )}
+
+                    {/* 제출 버튼 */}
+                    <div className="flex justify-end">
+                      <button
+                        onClick={() => handleGrade(q)}
+                        disabled={isGrading}
+                        className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold rounded-xl transition shadow-lg shadow-indigo-600/30 flex items-center gap-2"
+                      >
+                        {isGrading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                        답안 제출 및 분석 확인
+                      </button>
+                    </div>
+
+                    {/* ================= 문제 풀이 후 연계 학습 분석 피드백 ================= */}
+                    {result && (
+                      <div className="mt-6 space-y-4">
+                        {/* 1. 채점 결과 & 피드백 */}
+                        <div
+                          className={`p-5 rounded-xl border transition-all ${
+                            result.is_correct
+                              ? 'bg-emerald-950/20 border-emerald-800/60'
+                              : 'bg-rose-950/20 border-rose-800/60'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-3">
+                            <div className="flex items-center gap-2">
+                              {result.is_correct ? (
+                                <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                              ) : (
+                                <XCircle className="w-5 h-5 text-rose-400" />
+                              )}
+                              <span className="font-bold text-sm">
+                                득점: {result.score} / {result.max_score} 점
                               </span>
-                              <span className="text-sm font-medium">{opt.content}</span>
                             </div>
                           </div>
-                        );
-                      })}
-                    </div>
-                  )}
 
-                  {q.question_type === 'ESSAY' && (
-                    <div className="mb-6 space-y-2">
-                      <label className="text-xs font-semibold text-slate-400 flex items-center gap-1">
-                        <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-                        실기 서술형 답안 작성 (핵심 키워드 중심 서술)
-                      </label>
-                      <textarea
-                        rows={5}
-                        placeholder="공격 명칭, 동작 원리, 커널 파라미터 또는 대응 방안을 키워드 기반으로 서술하세요..."
-                        value={essayAnswers[q.id] || ''}
-                        onChange={(e) => setEssayAnswers({ ...essayAnswers, [q.id]: e.target.value })}
-                        className="w-full bg-slate-950 border border-slate-800 rounded-xl p-4 text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-indigo-500 leading-relaxed font-mono"
-                      />
-                    </div>
-                  )}
+                          <div className="text-xs text-slate-300 whitespace-pre-line mb-4 font-mono bg-slate-950/60 p-3 rounded-lg border border-slate-800/80">
+                            {result.feedback}
+                          </div>
 
-                  {/* 제출 및 채점 버튼 */}
-                  <div className="flex justify-end">
-                    <button
-                      onClick={() => handleGrade(q)}
-                      disabled={isGrading}
-                      className="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-bold rounded-xl transition shadow-lg shadow-indigo-600/30 flex items-center gap-2"
-                    >
-                      {isGrading ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-                      답안 제출 및 AI 채점
-                    </button>
-                  </div>
+                          <div className="text-xs text-slate-300 bg-slate-900/90 p-3.5 rounded-lg border border-slate-800 leading-relaxed">
+                            <strong className="text-indigo-300 block mb-1">💡 상세 정답 및 해설:</strong>
+                            {result.explanation}
+                          </div>
+                        </div>
 
-                  {/* 채점 결과 피드백 카드 */}
-                  {result && (
-                    <div
-                      className={`mt-6 p-5 rounded-xl border transition-all ${
-                        result.is_correct
-                          ? 'bg-emerald-950/20 border-emerald-800/60'
-                          : 'bg-rose-950/20 border-rose-800/60'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center gap-2">
-                          {result.is_correct ? (
-                            <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-                          ) : (
-                            <XCircle className="w-5 h-5 text-rose-400" />
+                        {/* 2. 지식 연계 분석 카드 (과목/카테고리/출제빈도/연계학습) */}
+                        <div className="bg-slate-950 border border-slate-800 rounded-xl p-5 space-y-4">
+                          <div className="flex items-center justify-between pb-3 border-b border-slate-850">
+                            <h4 className="text-sm font-bold text-indigo-300 flex items-center gap-2">
+                              <BookOpen className="w-4 h-4" />
+                              연계 과목 및 출제 경향 심층 분석
+                            </h4>
+                            <span className="text-xs text-slate-400">
+                              소속 과목: <strong className="text-slate-200">{result.subject_name || q.subject_code}</strong>
+                            </span>
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div className="bg-slate-900/80 p-3 rounded-lg border border-slate-850">
+                              <span className="text-[11px] text-slate-400 block mb-1 font-medium">출제 빈도 & 가능성</span>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs font-bold text-amber-300">{result.frequency}</span>
+                                <span className="text-xs text-slate-400">| 예상 확률 {result.probability}</span>
+                              </div>
+                            </div>
+
+                            <div className="bg-slate-900/80 p-3 rounded-lg border border-slate-850">
+                              <span className="text-[11px] text-slate-400 block mb-1 font-medium">연계 핵심 토픽</span>
+                              <span className="text-xs font-bold text-slate-200">{result.topic_title}</span>
+                            </div>
+                          </div>
+
+                          {result.core_concepts && (
+                            <div className="bg-slate-900/50 p-3.5 rounded-lg border border-slate-850 text-xs text-slate-300 leading-relaxed">
+                              <strong className="text-slate-200 block mb-1">📚 관련 학습 핵심 내용:</strong>
+                              {result.core_concepts}
+                            </div>
                           )}
-                          <span className="font-bold text-sm">
-                            득점: {result.score} / {result.max_score} 점
-                          </span>
+
+                          {result.practical_point && (
+                            <div className="bg-slate-900/50 p-3.5 rounded-lg border border-slate-850 text-xs text-emerald-300/90 leading-relaxed">
+                              <strong className="text-emerald-300 block mb-1">🎯 실기 시험 대비 포인트:</strong>
+                              {result.practical_point}
+                            </div>
+                          )}
+
+                          {result.related_terms && result.related_terms.length > 0 && (
+                            <div className="pt-2 flex flex-wrap items-center gap-1.5">
+                              <span className="text-[11px] text-slate-400 font-semibold mr-1">연관 주제/용어:</span>
+                              {result.related_terms.map((term, i) => (
+                                <span
+                                  key={i}
+                                  className="text-[11px] px-2 py-0.5 bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 rounded-md font-mono"
+                                >
+                                  #{term}
+                                </span>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       </div>
-
-                      <div className="text-xs text-slate-300 whitespace-pre-line mb-4 font-mono bg-slate-950/60 p-3 rounded-lg border border-slate-800/80">
-                        {result.feedback}
-                      </div>
-
-                      {/* 상세 해설 */}
-                      <div className="text-xs text-slate-400 bg-slate-900 p-3 rounded-lg border border-slate-800 leading-relaxed">
-                        <strong className="text-slate-300 block mb-1">💡 상세 정답 및 해설:</strong>
-                        {result.explanation}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
       </main>
 
       {/* 푸터 */}
       <footer className="border-t border-slate-900 py-6 text-center text-xs text-slate-600">
-        PassForge Framework © 2026 — 국가공인 IT자격증 학습전략 및 AI 채점 엔진
+        PassForge Framework © 2026 — 국가공인 IT자격증 학습전략 및 지식 연계 AI 엔진
       </footer>
     </div>
   );

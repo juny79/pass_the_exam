@@ -40,23 +40,23 @@
           "subject_no": 1,
           "code": "SYS_SEC",
           "name": "시스템 보안",
-          "description": "운영체제(Linux, Windows) 구조, 계정 및 접근통제, 파일시스템 권한, 로그 분석 및 시스템 침해공격/취약점 대응",
+          "description": "운영체제(Linux, Windows) 아키텍처, 계정 및 접근통제, 파일시스템 권한, 침해사고 감사 로그 분석 및 악성코드 대응",
           "subcategories": [
             {
               "cat_id": "SYS_CAT_01",
-              "cat_name": "운영체제 구조 및 메모리 보호 기법",
+              "cat_name": "운영체제 아키텍처 및 메모리 보호 기법",
               "topics": [
                 {
                   "id": "SYS_01",
                   "title": "버퍼 오버플로우(Buffer Overflow) 공격 및 보호 기법",
-                  "frequency": "매우 높음 (필기/실기 빈출)",
-                  "probability": "95%",
-                  "core_concepts": "스택/힙 오버플로우 원리, NOP Sled, Return Address 변조, 보호 기법(ASLR, DEP/NX, Stack Canary, SafeSEH, ASCII Armor)",
-                  "practical_point": "gdb를 이용한 스택 프레임 분석 및 gcc 컴파일 옵션(-fno-stack-protector, -z execstack 등) 출제",
+                  "frequency": "최고 빈도 (필기/실기 빈출)",
+                  "probability": "98%",
+                  "core_concepts": "스택/힙 메모리 레이아웃, NOP Sled, RET(Return Address) 변조 원리, 메모리 보호 5대장(ASLR, DEP/NX, Stack Canary, SafeSEH, ASCII-Armor)",
+                  "practical_point": "gdb를 이용한 스택 프레임 분석 및 gcc 보안 컴파일 옵션(-fno-stack-protector, -z execstack 등) 해석",
                   "youtube_tips": {
                     "channel": "수제비 TV (두음쌤) & 알기사",
                     "mnemonic": "메모리 보호 4대장: '카-에-디-아' (Canary, ASLR, DEP/NX, ASCII-Armor)",
-                    "lecture_summary": "1. 버퍼를 넘쳐 RET(리턴주소)를 덮어쓰는 것이 핵심.\n2. 방어기법: Stack Canary(버퍼와 SFP사이에 난수 삽입 후 에필로그 검증), ASLR(스택/힙/라이브러리 주소를 실행마다 무작위 배치), DEP/NX(스택/힙 영역의 실행 권한 박탈).\n3. 서술형 시험에서는 각 보호기법의 영문 풀네임과 원리를 명확히 대조 서술해야 만점."
+                    "lecture_summary": "1. 버퍼 경계를 넘어 SFP와 RET를 덮어쓰는 기법.\n2. 방어기법: Stack Canary(난수 무결성 검증), ASLR(주소 무작위화), DEP/NX(스택/힙 실행 권한 박탈).\n3. 서술형 시험에서는 각 보호기법의 영문 풀네임과 동작 메커니즘을 명확히 대조해야 만점."
                   },
                   "related_terms": [
                     "ASLR",
@@ -69,14 +69,14 @@
                 {
                   "id": "SYS_02",
                   "title": "레이스 컨디션(Race Condition) & 포맷 스트링(Format String)",
-                  "frequency": "높음 (실기 단답형 빈출)",
-                  "probability": "85%",
-                  "core_concepts": "심볼릭 링크와 TOCTOU(Time of Check to Time of Use) 취약점, %x, %s, %n을 이용한 메모리 열람 및 변조 공격",
-                  "practical_point": "lstat()과 open() 함수 간의 시간차 취약점 완화(O_EXCL, O_CREAT 플래그 사용) 및 printf(buf) 대신 printf(\"%s\", buf) 사용 원칙 서술",
+                  "frequency": "높음 (실기 단답/서술 빈출)",
+                  "probability": "88%",
+                  "core_concepts": "심볼릭 링크를 악용한 TOCTOU(Time of Check to Time of Use) 공격, %x, %s, %n을 이용한 메모리 열람 및 특정 주소 임의 변조",
+                  "practical_point": "lstat()과 open() 함수 간의 시간차 취약점 완화(O_EXCL, O_CREAT 플래그) 및 printf(buf) 대신 printf(\"%s\", buf) 원칙 서술",
                   "youtube_tips": {
                     "channel": "알기사 실기 요약",
                     "mnemonic": "포맷 스트링 %n: '엔(n)은 쓴다' (출력된 바이트 수를 해당 포인터 변수에 기록/변조)",
-                    "lecture_summary": "1. Race Condition: 프로세스가 자원을 검사(Check)하고 사용하는(Use) 사이의 시간 간격을 악용하여 심볼릭 링크를 바꿔치기함.\n2. 포맷 스트링: 사용자 입력값을 포맷 인자로 직접 전달할 때 %x로 스택을 덤프하고 %n으로 특정 메모리를 덮어씀."
+                    "lecture_summary": "1. Race Condition: 프로세스가 자원을 검사(Check)하고 사용하는(Use) 사이의 시간차를 노려 심볼릭 링크를 악성 파일로 교체.\n2. 포맷 스트링: 사용자 입력값을 서식 지정자 없이 넘길 때 %x로 스택 누출, %n으로 RET 덮어쓰기 발생."
                   },
                   "related_terms": [
                     "TOCTOU",
@@ -90,14 +90,14 @@
             },
             {
               "cat_id": "SYS_CAT_02",
-              "cat_name": "계정 관리, 권한 통제 및 PAM",
+              "cat_name": "리눅스/유닉스 계정·권한 및 PAM 모듈",
               "topics": [
                 {
                   "id": "SYS_03",
                   "title": "리눅스 계정/권한 및 SetUID 취약점",
                   "frequency": "매우 높음",
-                  "probability": "90%",
-                  "core_concepts": "/etc/passwd, /etc/shadow 패스워드 해시 구조, 특수 권한(SetUID, SetGID, Sticky Bit), umask 계산",
+                  "probability": "92%",
+                  "core_concepts": "/etc/passwd, /etc/shadow 패스워드 해시 구조, 특수 권한(SetUID 4000, SetGID 2000, Sticky Bit 1000), umask 계산 공식",
                   "practical_point": "find / -perm -4000 명령어를 통한 SetUID 취약 파일 점검 및 제거 스크립트 작성",
                   "youtube_tips": {
                     "channel": "이기적 영진닷컴 & 수제비 TV",
@@ -118,7 +118,7 @@
                   "frequency": "높음 (실기 단답/서술)",
                   "probability": "85%",
                   "core_concepts": "모듈 타입(auth, account, password, session), 제어 플래그(required, requisite, sufficient, optional)",
-                  "practical_point": "pam_tally2/pam_faillock을 이용한 로그인 실패 횟수 제한 설정(deny=5 unlock_time=600)",
+                  "practical_point": "pam_tally2/pam_faillock을 이용한 로그인 실패 횟수 제한 설정(deny=5 unlock_time=600) 및 wheel 그룹 제한",
                   "youtube_tips": {
                     "channel": "수제비 TV (두음쌤)",
                     "mnemonic": "PAM 플래그: '리-리-서-옵' (Required 실패해도 계속, Requisite 실패시 즉시중단, Sufficient 성공시 즉시통과, Optional)",
@@ -136,27 +136,72 @@
             },
             {
               "cat_id": "SYS_CAT_03",
-              "cat_name": "로그 분석 및 침해사고 조사",
+              "cat_name": "시스템 감사 로그 및 침해사고 조사",
               "topics": [
                 {
                   "id": "SYS_05",
-                  "title": "리눅스/윈도우 시스템 감사 로그 분석",
-                  "frequency": "높음 (실기 14점 단골)",
-                  "probability": "90%",
-                  "core_concepts": "wtmp(last), utmp(who), btmp(lastb), lastlog, secure/auth.log, 윈도우 이벤트 뷰어(Event ID 4624/4625/7045)",
-                  "practical_point": "침해사고 발생 시 공격자의 로그인 시간, IP, 실패 흔적을 로그에서 추출하고 역추적하는 시나리오",
+                  "title": "리눅스 시스템 감사 바이너리 로그 분석",
+                  "frequency": "최고 빈도 (실기 14점 단골)",
+                  "probability": "95%",
+                  "core_concepts": "utmp(who/w - 현재 접속자), wtmp(last - 성공한 로그인/로그아웃/재부팅), btmp(lastb - 실패한 로그인), lastlog, /var/log/secure",
+                  "practical_point": "침해사고 발생 시 공격자의 로그인 시간, IP, 실패 흔적을 로그에서 추출하고 역추적하는 시나리오 작성",
                   "youtube_tips": {
                     "channel": "알기사 핵심 요약",
                     "mnemonic": "리눅스 4대 바이너리 로그: '유-후, 더블유-라, 비-라비' (utmp: who, wtmp: last, btmp: lastb)",
-                    "lecture_summary": "1. utmp/wtmp/btmp는 텍스트 에디터(vi/cat)로 열 수 없고 반드시 전용 명령어(who, last, lastb)로 확인해야 함.\n2. 윈도우 보안 이벤트 로그 Event ID 암기 필수: 4624(로그인 성공), 4625(로그인 실패), 7045(새 서비스 설치/백도어)."
+                    "lecture_summary": "1. utmp/wtmp/btmp는 텍스트 에디터(vi/cat)로 열 수 없고 반드시 전용 명령어(who, last, lastb)로 확인해야 함.\n2. 로그 삭제/위조 흔적 점검: /var/log/messages, /var/log/secure 타임스탬프 대조."
                   },
                   "related_terms": [
                     "utmp",
                     "wtmp",
                     "btmp",
+                    "lastlog",
+                    "secure/auth.log"
+                  ]
+                },
+                {
+                  "id": "SYS_06",
+                  "title": "윈도우 보안 이벤트 로그 및 계정 관리",
+                  "frequency": "높음 (실기 단답형 빈출)",
+                  "probability": "88%",
+                  "core_concepts": "이벤트 뷰어 주요 보안 Event ID: 4624(로그인 성공), 4625(로그인 실패/무차별 대입), 4720(사용자 계정 생성), 7045(새 서비스 설치/백도어), SAM 파일",
+                  "practical_point": "Event ID 4625 로그 내 Logon Type(Type 2: 대화형 콘솔, Type 3: 네트워크 접속, Type 10: RDP 원격) 분류 및 공격 유형 식별",
+                  "youtube_tips": {
+                    "channel": "이기적 영진닷컴",
+                    "mnemonic": "윈도우 로그 암기: '4624 성공, 4625 실패, 7045 서비스 백도어'",
+                    "lecture_summary": "1. Event ID 4625가 단시간에 대량 발생하면 Brute Force 또는 Dictionary Attack 의심.\n2. Logon Type 10은 RDP(3389) 원격 데스크톱을 통한 침투 시도."
+                  },
+                  "related_terms": [
+                    "Event ID 4624",
                     "Event ID 4625",
+                    "Logon Type 10",
                     "Event ID 7045",
-                    "syslog.conf"
+                    "SAM"
+                  ]
+                }
+              ]
+            },
+            {
+              "cat_id": "SYS_CAT_04",
+              "cat_name": "악성코드, 루트킷 및 취약점 점검",
+              "topics": [
+                {
+                  "id": "SYS_07",
+                  "title": "루트킷(Rootkit) 탐지 및 Tripwire 무결성 검사",
+                  "frequency": "높음",
+                  "probability": "82%",
+                  "core_concepts": "사용자 영역 루트킷(ps, ls, netstat 바이너리 변조) vs 커널 영역 루트킷(LKM 변조, 시스템 콜 후킹), Tripwire(해시 기반 파일 무결성 점검)",
+                  "practical_point": "chkrootkit / rkhunter 도구 구동 원리 및 Tripwire 데이터베이스(tw.db) 무결성 검증 절차",
+                  "youtube_tips": {
+                    "channel": "알기사 실기 핵심",
+                    "mnemonic": "무결성 점검 도구 1위: '트립와이어(Tripwire) 해시 대조'",
+                    "lecture_summary": "1. 루트킷은 공격자가 시스템에 은밀히 백도어를 유지하고 흔적을 숨기는 도구 모음.\n2. 변조 방지: 중요 바이너리(/bin/ps, /bin/ls)를 chattr +i 명령어로 불변(Immutable) 속성 지정."
+                  },
+                  "related_terms": [
+                    "Rootkit",
+                    "Tripwire",
+                    "LKM",
+                    "chattr +i",
+                    "chkrootkit"
                   ]
                 }
               ]
@@ -167,11 +212,11 @@
           "subject_no": 2,
           "code": "NET_SEC",
           "name": "네트워크 보안",
-          "description": "네트워크 계층별 프로토콜 취약점, DoS/DDoS 공격, 네트워크 장비(라우터, 스위치), 침입탐지(Snort) 및 방화벽(iptables)",
+          "description": "네트워크 계층별 프로토콜 취약점, DoS/DDoS 공격, 네트워크 장비(라우터, 스위치), 침입탐지(Snort) 및 방화벽(iptables), 무선 보안",
           "subcategories": [
             {
               "cat_id": "NET_CAT_01",
-              "cat_name": "네트워크 프로토콜 취약점 및 스푸핑/스니핑",
+              "cat_name": "네트워크 계층별 프로토콜 취약점 및 세션 공격",
               "topics": [
                 {
                   "id": "NET_01",
@@ -243,7 +288,7 @@
             },
             {
               "cat_id": "NET_CAT_03",
-              "cat_name": "보안 장비 및 침입 탐지/차단 (iptables & Snort)",
+              "cat_name": "보안 솔루션 및 방화벽 (iptables & Snort)",
               "topics": [
                 {
                   "id": "NET_04",
@@ -284,7 +329,13 @@
                     "offset/depth",
                     "sid"
                   ]
-                },
+                }
+              ]
+            },
+            {
+              "cat_id": "NET_CAT_04",
+              "cat_name": "VPN 및 무선 LAN/네트워크 암호화 프로토콜",
+              "topics": [
                 {
                   "id": "NET_06",
                   "title": "IPSec 및 VPN 보안 프로토콜",
@@ -304,6 +355,26 @@
                     "SA(Security Association)",
                     "Tunnel Mode"
                   ]
+                },
+                {
+                  "id": "NET_07",
+                  "title": "무선 LAN 보안 (WEP, WPA, WPA2/3, 802.1X/EAP)",
+                  "frequency": "높음 (필기/실기 단답)",
+                  "probability": "82%",
+                  "core_concepts": "WEP 취약점(RC4, 짧은 24비트 IV), WPA(TKIP), WPA2(IEEE 802.11i, CCMP/AES), WPA3(SAE 동시인증), 802.1X EAP/RADIUS",
+                  "practical_point": "WPA2 CCMP의 암호 알고리즘(AES-128) 및 WPA-Personal(PSK) vs WPA-Enterprise(802.1X/RADIUS) 차이 서술",
+                  "youtube_tips": {
+                    "channel": "알기사 핵심 요약",
+                    "mnemonic": "무선 보안 발전: '웹(WEP) 취약 -> 윕(WPA-TKIP) -> 윕투(WPA2-CCMP/AES) -> 윕쓰리(WPA3-SAE)'",
+                    "lecture_summary": "1. WEP은 고정키와 24비트 IV의 짧은 주기성으로 인해 무차별 크랙에 1분만에 뚫림.\n2. WPA2는 CCMP(AES)를 사용하여 완벽한 기밀성과 무결성 보장."
+                  },
+                  "related_terms": [
+                    "WEP",
+                    "WPA2-CCMP",
+                    "IEEE 802.11i",
+                    "802.1X",
+                    "RADIUS"
+                  ]
                 }
               ]
             }
@@ -313,11 +384,11 @@
           "subject_no": 3,
           "code": "APP_SEC",
           "name": "애플리케이션 보안",
-          "description": "웹 애플리케이션 취약점(OWASP Top 10), 데이터베이스 보안(SQL Injection), 전자우편/DNS 보안, 안전한 소프트웨어 개발",
+          "description": "웹 애플리케이션 취약점(OWASP Top 10), 데이터베이스 보안(SQL Injection), 전자우편/DNS 보안, 시큐어 코딩",
           "subcategories": [
             {
               "cat_id": "APP_CAT_01",
-              "cat_name": "웹 애플리케이션 취약점 (OWASP Top 10)",
+              "cat_name": "웹 애플리케이션 공격 및 취약점 (OWASP Top 10)",
               "topics": [
                 {
                   "id": "APP_01",
@@ -378,15 +449,35 @@
                     "화이트리스트",
                     "Directory Listing"
                   ]
+                },
+                {
+                  "id": "APP_04",
+                  "title": "SSRF (Server-Side Request Forgery) 취약점",
+                  "frequency": "상승세 (최신 기출 빈출)",
+                  "probability": "80%",
+                  "core_concepts": "공격자가 서버를 프록시로 악용하여 내부망(127.0.0.1, 169.254.169.254 클라우드 메타데이터) 자원을 조회 및 공격",
+                  "practical_point": "URL 스키마 제한(http/https만 허용, file://, gopher:// 차단) 및 내부 사설 IP 대역(RFC 1918) 필터링",
+                  "youtube_tips": {
+                    "channel": "수제비 TV 최신 트렌드",
+                    "mnemonic": "SSRF: '서버가 내부망을 대신 찌르는 공격'",
+                    "lecture_summary": "1. 외부에서 직접 접근할 수 없는 내부 관리 콘솔이나 클라우드 인스턴스 메타데이터(AWS 169.254.169.254)를 탈취하는 치명적 취약점.\n2. 방어: 입력받은 도메인의 IP를 DNS Resolve한 후 사설망 대역이면 요청 차단."
+                  },
+                  "related_terms": [
+                    "SSRF",
+                    "Cloud Metadata",
+                    "169.254.169.254",
+                    "사설 IP 차단",
+                    "URL 화이트리스트"
+                  ]
                 }
               ]
             },
             {
               "cat_id": "APP_CAT_02",
-              "cat_name": "전자우편 및 네트워크 서비스 보안",
+              "cat_name": "전자우편, DNS 및 웹 서버(Apache/Nginx) 보안",
               "topics": [
                 {
-                  "id": "APP_04",
+                  "id": "APP_05",
                   "title": "이메일 인증 보안 (SPF, DKIM, DMARC)",
                   "frequency": "상승세 (최근 실기 단답형 빈출)",
                   "probability": "85%",
@@ -406,7 +497,7 @@
                   ]
                 },
                 {
-                  "id": "APP_05",
+                  "id": "APP_06",
                   "title": "DNS 보안 (DNS Spoofing, DNSSEC, Zone Transfer)",
                   "frequency": "높음 (필기/실기)",
                   "probability": "82%",
@@ -424,6 +515,26 @@
                     "named.conf",
                     "dig axfr"
                   ]
+                },
+                {
+                  "id": "APP_07",
+                  "title": "웹 서버(Apache/Nginx) 보안 설정 및 헤더 강화",
+                  "frequency": "높음 (실기 실무형 단골)",
+                  "probability": "85%",
+                  "core_concepts": "ServerTokens Prod / ServerSignature Off (서버 배너 은닉), 디렉터리 리스팅 차단(Options -Indexes), 보안 응답 헤더(HSTS, CSP, X-Frame-Options)",
+                  "practical_point": "httpd.conf에서 Options Indexes 제거 및 X-Frame-Options: DENY 헤더를 통한 Clickjacking 방어",
+                  "youtube_tips": {
+                    "channel": "알기사 웹서버 보안",
+                    "mnemonic": "웹서버 보안 3조치: '배너숨김(Tokens Prod), 인덱스제거(-Indexes), 보안헤더(HSTS/CSP)'",
+                    "lecture_summary": "1. 디렉터리 리스팅이 켜져 있으면 index.html이 없는 폴더의 모든 파일 목록이 노출됨.\n2. X-Frame-Options: iframe 삽입을 차단하여 클릭재킹 공격 무력화."
+                  },
+                  "related_terms": [
+                    "ServerTokens Prod",
+                    "-Indexes",
+                    "X-Frame-Options",
+                    "CSP",
+                    "HSTS"
+                  ]
                 }
               ]
             }
@@ -433,34 +544,60 @@
           "subject_no": 4,
           "code": "GEN_SEC",
           "name": "정보보안 일반",
-          "description": "보안 3대 요소(CIA), 암호학(대칭키/비대칭키, 해시함수, 전자서명), 전자서명 및 PKI 구조, 접근통제 모델",
+          "description": "보안 3대 요소(CIA), 암호학(대칭키/비대칭키, 해시함수, 전자서명), PKI 공개키 기반구조, 접근통제 정책 및 보안 모델",
           "subcategories": [
             {
               "cat_id": "GEN_CAT_01",
-              "cat_name": "암호학 (대칭키, 공개키, 해시함수)",
+              "cat_name": "암호학 기초 및 현대 암호 알고리즘",
               "topics": [
                 {
                   "id": "GEN_01",
-                  "title": "대칭키 vs 공개키 암호 알고리즘",
-                  "frequency": "매우 높음 (필기 다수 출제)",
-                  "probability": "90%",
-                  "core_concepts": "대칭키(AES, DES, ARIA, SEED), 블록암호 모드(ECB, CBC, CTR, GCM), 공개키(RSA, ECC, ElGamal), 키 교환(DH)",
-                  "practical_point": "블록 암호화 운용 모드 중 CBC의 IV 필요성과 CTR/GCM의 병렬처리 장단점 서술",
+                  "title": "대칭키(비밀키) 암호 알고리즘 및 블록 운영 모드",
+                  "frequency": "최고 빈도 (필기 다수 출제)",
+                  "probability": "95%",
+                  "core_concepts": "Feistel 구조(DES) vs SPN 구조(AES), 국내 표준(SEED 128비트, ARIA, HIGHT), 블록 운영 모드(ECB-취약, CBC-IV필요, CTR/GCM-병렬처리)",
+                  "practical_point": "CBC 모드에서 초기화 벡터(IV)의 무작위 생성 필요성 및 암호문 블록 오류 전파 특성 서술",
                   "youtube_tips": {
                     "channel": "수제비 TV (두음쌤)",
-                    "mnemonic": "국산 대칭키: '세-아-하' (SEED, ARIA, HIGHT) / 공개키: '알-이-디' (RSA, ECC, Diffie-Hellman)",
-                    "lecture_summary": "1. 대칭키: 기밀성 제공, 속도 빠름, 키 배송 문제(n(n-1)/2개 키 필요).\n2. 비대칭키: 기밀성(수신자 공개키 암호화) + 전자서명/인증(송신자 개인키 암호화), 키 개수 2n개, 계산량 큼.\n3. 하이브리드 암호: 데이터는 대칭키로 암호화하고, 그 대칭키(세션키)를 수신자의 공개키로 암호화하여 전송."
+                    "mnemonic": "국산 대칭키: '세-아-하' (SEED, ARIA, HIGHT) / 블록 모드: '이-씨-씨-오-씨' (ECB, CBC, CFB, OFB, CTR)",
+                    "lecture_summary": "1. ECB 모드는 동일한 평문 블록이 항상 동일한 암호문 블록으로 치환되어 패턴 노출(절대 사용 금지).\n2. CBC 모드는 이전 암호문 블록과 평문을 XOR 연산 후 암호화(IV 필수)."
                   },
                   "related_terms": [
                     "AES",
                     "ARIA/SEED",
-                    "RSA",
+                    "SPN 구조",
                     "CBC Mode",
                     "IV(Initialization Vector)"
                   ]
                 },
                 {
                   "id": "GEN_02",
+                  "title": "공개키(비대칭키) 암호 알고리즘 및 키 교환",
+                  "frequency": "매우 높음",
+                  "probability": "90%",
+                  "core_concepts": "소인수분해 난제(RSA), 이산대수 난제(Diffie-Hellman, ElGamal, DSA), 타원곡선 이산대수(ECC), 하이브리드 암호 시스템",
+                  "practical_point": "ECC가 RSA 대비 적은 키 길이(256비트 vs 2048비트)로 동일한 보안 강도를 제공하는 장점 서술",
+                  "youtube_tips": {
+                    "channel": "알기사 핵심 요약",
+                    "mnemonic": "공개키 수학적 난제: '알(RSA)-소인수, 디(Diffie-Hellman)/엘(ElGamal)-이산대수, 이(ECC)-타원곡선'",
+                    "lecture_summary": "1. 공개키 암호는 키 분배 문제를 해결하지만 연산 속도가 느림.\n2. 하이브리드 암호: 데이터 자체는 대칭키(세션키)로 암호화하고, 세션키는 상대방 공개키로 암호화하여 전송."
+                  },
+                  "related_terms": [
+                    "RSA",
+                    "ECC",
+                    "Diffie-Hellman",
+                    "하이브리드 암호",
+                    "소인수분해"
+                  ]
+                }
+              ]
+            },
+            {
+              "cat_id": "GEN_CAT_02",
+              "cat_name": "해시 함수, 전자서명 및 PKI 구조",
+              "topics": [
+                {
+                  "id": "GEN_03",
                   "title": "일방향 해시 함수 및 메시지 인증 코드 (MAC/HMAC)",
                   "frequency": "매우 높음",
                   "probability": "88%",
@@ -478,19 +615,39 @@
                     "눈사태 효과",
                     "전자서명"
                   ]
+                },
+                {
+                  "id": "GEN_04",
+                  "title": "PKI (공개키 기반구조) 및 인증서 검증 (CRL/OCSP)",
+                  "frequency": "높음",
+                  "probability": "85%",
+                  "core_concepts": "인증기관(CA), 등록기관(RA), X.509 인증서 구조, 인증서 폐지 목록(CRL) vs 실시간 인증서 상태 프로토콜(OCSP)",
+                  "practical_point": "CRL의 갱신 주기 지연 문제를 해결하기 위한 OCSP의 실시간 질의 응답 장점 및 OCSP Stapling 서술",
+                  "youtube_tips": {
+                    "channel": "이기적 영진닷컴",
+                    "mnemonic": "인증서 폐지 확인: '느린 배치는 CRL, 실시간 질의는 OCSP'",
+                    "lecture_summary": "1. CRL(Certificate Revocation List)은 주기적으로 배포되어 실시간 폐지 여부 확인 불가.\n2. OCSP는 인증서 시리얼 넘버를 질의하여 유효/폐지 여부를 즉시 반환."
+                  },
+                  "related_terms": [
+                    "PKI",
+                    "X.509",
+                    "CRL",
+                    "OCSP",
+                    "OCSP Stapling"
+                  ]
                 }
               ]
             },
             {
-              "cat_id": "GEN_CAT_02",
-              "cat_name": "접근통제 보안 모델 및 인증 기술",
+              "cat_id": "GEN_CAT_03",
+              "cat_name": "접근통제 정책 및 다단계 보안 모델",
               "topics": [
                 {
-                  "id": "GEN_03",
+                  "id": "GEN_05",
                   "title": "접근통제 정책 및 모델 (DAC, MAC, RBAC, BLP, Biba)",
                   "frequency": "높음 (필기/실기 단골)",
-                  "probability": "88%",
-                  "core_concepts": "DAC(신분 기반), MAC(강제적, 보안라벨/인가등급, Bell-LaPadula, Biba), RBAC(역할 기반, 최소권한원칙)",
+                  "probability": "90%",
+                  "core_concepts": "DAC(신분 기반), MAC(강제적, 보안라벨/인가등급, Bell-LaPadula, Biba), RBAC(역할 기반, 최소권한원칙), Clark-Wilson, Chinese Wall",
                   "practical_point": "BLP 모델의 기밀성 규칙(No Read Up, No Write Down)과 Biba 모델의 무결성 규칙(No Read Down, No Write Up) 비교 서술",
                   "youtube_tips": {
                     "channel": "알기사 & 수제비 TV",
@@ -514,17 +671,17 @@
           "subject_no": 5,
           "code": "LAW_MGT",
           "name": "정보보안 관리 및 법규",
-          "description": "ISMS-P 인증기준, 개인정보보호법, 정보통신망법, 정보통신기반보호법, 위험관리 및 업무연속성계획(BCP/DRP)",
+          "description": "ISMS-P 인증기준, 위험관리 및 업무연속성계획(BCP/DRP), 개인정보보호법, 정보통신망법, 정보통신기반보호법",
           "subcategories": [
             {
               "cat_id": "LAW_CAT_01",
-              "cat_name": "정보보호 관리체계 (ISMS-P) 및 위험 분석",
+              "cat_name": "정보보호 관리체계 (ISMS-P) 및 인증 기준",
               "topics": [
                 {
                   "id": "LAW_01",
                   "title": "ISMS-P 인증 관리체계 및 주요 점검항목",
                   "frequency": "최고 빈도 (실기 10점~14점 단골 서술)",
-                  "probability": "95%",
+                  "probability": "98%",
                   "core_concepts": "관리체계 수립 및 운영(16개), 보호대책 요구사항(64개), 개인정보 처리단계별 요구사항(22개) 총 102개 항목",
                   "practical_point": "비밀번호 작성규칙, 접속기록 보관 기간(1년/2년), 망분리 대상 기준 및 예외 기준",
                   "youtube_tips": {
@@ -539,13 +696,19 @@
                     "망분리",
                     "위험평가"
                   ]
-                },
+                }
+              ]
+            },
+            {
+              "cat_id": "LAW_CAT_02",
+              "cat_name": "위험 관리 및 업무연속성 계획 (BCP / DRP)",
+              "topics": [
                 {
                   "id": "LAW_02",
                   "title": "위험관리(Risk Management) 및 업무연속성(BCP/DRP)",
                   "frequency": "높음 (필기/실기)",
                   "probability": "85%",
-                  "core_concepts": "위험도 분석(정량적: ALE=SLE*ARO vs 정성적: 델파이, 순위척도), 위험 처리 4단계(수용, 회피, 전가, 감소), RTO/RPO 지표",
+                  "core_concepts": "위험도 분석(정량적: ALE=SLE*ARO vs 정성적: 델파이, 순위척도), 위험 처리 4단계(수용, 회피, 전가, 감소), RTO/RPO 지표, 재해복구센터(Mirror, Hot, Warm, Cold)",
                   "practical_point": "RTO(목표복구시간)와 RPO(목표복구시점)의 정의를 대조하여 묻는 단답형 및 ALE 계산식 출제",
                   "youtube_tips": {
                     "channel": "이기적 영진닷컴",
@@ -563,16 +726,16 @@
               ]
             },
             {
-              "cat_id": "LAW_CAT_02",
-              "cat_name": "개인정보보호법 및 관련 법령",
+              "cat_id": "LAW_CAT_03",
+              "cat_name": "개인정보보호법 및 안전성 확보조치 기준",
               "topics": [
                 {
                   "id": "LAW_03",
                   "title": "개인정보보호법 주요 규정 및 안전성 확보조치 기준",
-                  "frequency": "매우 높음",
-                  "probability": "95%",
-                  "core_concepts": "고유식별정보 암호화 대상(주민등록번호, 여권번호, 운전면허번호, 외국인등록번호), 개인정보 파기 절차, 유출 통지 기준",
-                  "practical_point": "개인정보 유출 시 통지/신고 기한(72시간 이내), 안전성 확보조치 기준 고시상 암호화 저장 의무",
+                  "frequency": "최고 빈도 (필기/실기 필수)",
+                  "probability": "98%",
+                  "core_concepts": "고유식별정보 암호화 대상(주민등록번호, 여권번호, 운전면허번호, 외국인등록번호), 개인정보 파기 절차, 유출 통지 기준(72시간), 가명정보 처리 특례",
+                  "practical_point": "개인정보 유출 시 통지/신고 기한(72시간 이내), 안전성 확보조치 기준 고시상 암호화 저장 의무 대상 명시",
                   "youtube_tips": {
                     "channel": "조상진 보안특강 & 수제비 TV",
                     "mnemonic": "고유식별 4대장: '주-여-운-외' (주민, 여권, 운전면허, 외국인등록번호) / 유출 신고 골든타임: '72시간'",
@@ -585,13 +748,19 @@
                     "비식별 조치",
                     "가명정보"
                   ]
-                },
+                }
+              ]
+            },
+            {
+              "cat_id": "LAW_CAT_04",
+              "cat_name": "정보통신망법 및 주요정보통신기반보호법",
+              "topics": [
                 {
                   "id": "LAW_04",
-                  "title": "정보통신기반보호법 및 망법 비교",
+                  "title": "주요정보통신기반보호법 및 CISO 지정 요건",
                   "frequency": "높음 (필기/실기 단답)",
-                  "probability": "82%",
-                  "core_concepts": "주요정보통신기반시설 지정 및 보호지원, 침해사고 대책본부, 정보보호최고책임자(CISO) 지정 요건",
+                  "probability": "85%",
+                  "core_concepts": "주요정보통신기반시설 지정 및 보호지원, 취약점 분석·평가 주기(매년 1회 이상), 침해사고 대책본부, 정보보호최고책임자(CISO) 지정 및 겸직 제한",
                   "practical_point": "기반시설 취약점 분석·평가 주기(매년 1회 이상) 및 CISO 임원급 지정 의무 기준",
                   "youtube_tips": {
                     "channel": "알기사 법규정리",
@@ -694,11 +863,11 @@
       "cert_id": "is_engineer",
       "exam_type": "WRITTEN",
       "subject_code": "LAW_MGT",
-      "cat_id": "LAW_CAT_02",
+      "cat_id": "LAW_CAT_03",
       "topic_id": "LAW_03",
       "topic_title": "개인정보보호법 주요 규정 및 안전성 확보조치 기준",
-      "frequency": "매우 높음",
-      "probability": "95%",
+      "frequency": "최고 빈도 (필기/실기 필수)",
+      "probability": "98%",
       "question_type": "MULTIPLE_CHOICE",
       "question_number": 85,
       "points": 1.0,
@@ -736,7 +905,7 @@
       "topic_id": "SYS_03",
       "topic_title": "리눅스 계정/권한 및 SetUID 취약점",
       "frequency": "매우 높음",
-      "probability": "90%",
+      "probability": "92%",
       "question_type": "MULTIPLE_CHOICE",
       "question_number": 8,
       "points": 1.0,
@@ -770,11 +939,11 @@
       "cert_id": "is_engineer",
       "exam_type": "WRITTEN",
       "subject_code": "GEN_SEC",
-      "cat_id": "GEN_CAT_02",
-      "topic_id": "GEN_03",
+      "cat_id": "GEN_CAT_03",
+      "topic_id": "GEN_05",
       "topic_title": "접근통제 정책 및 모델 (DAC, MAC, RBAC, BLP, Biba)",
       "frequency": "높음 (필기/실기 단골)",
-      "probability": "88%",
+      "probability": "90%",
       "question_type": "MULTIPLE_CHOICE",
       "question_number": 68,
       "points": 1.0,
@@ -802,6 +971,82 @@
         }
       ],
       "explanation": "Bell-LaPadula(BLP) 모델은 기밀성을 위한 모델로, 단순 보안 속성(No Read Up: 자신보다 높은 등급 읽기 불가)과 *-속성(No Write Down: 자신보다 낮은 등급 쓰기 불가)을 가집니다."
+    },
+    {
+      "id": "q-written-006",
+      "cert_id": "is_engineer",
+      "exam_type": "WRITTEN",
+      "subject_code": "NET_SEC",
+      "cat_id": "NET_CAT_04",
+      "topic_id": "NET_07",
+      "topic_title": "무선 LAN 보안 (WEP, WPA, WPA2/3, 802.1X/EAP)",
+      "frequency": "높음 (필기/실기 단답)",
+      "probability": "82%",
+      "question_type": "MULTIPLE_CHOICE",
+      "question_number": 35,
+      "points": 1.0,
+      "stem": "IEEE 802.11i 표준에 기반하여 강력한 AES-128 블록 암호 알고리즘과 CCMP(Counter Mode with CBC-MAC Protocol)를 채택하여 무선 LAN의 기밀성과 무결성을 보장하는 무선 보안 규격은?",
+      "options": [
+        {
+          "option_no": 1,
+          "content": "WEP",
+          "is_correct": false
+        },
+        {
+          "option_no": 2,
+          "content": "WPA (TKIP)",
+          "is_correct": false
+        },
+        {
+          "option_no": 3,
+          "content": "WPA2",
+          "is_correct": true
+        },
+        {
+          "option_no": 4,
+          "content": "WPS",
+          "is_correct": false
+        }
+      ],
+      "explanation": "WPA2는 IEEE 802.11i 무선 보안 표준을 완성한 규격으로, 기존 RC4/TKIP의 취약점을 제거하고 AES 기반 CCMP 프로토콜을 의무화하였습니다."
+    },
+    {
+      "id": "q-written-007",
+      "cert_id": "is_engineer",
+      "exam_type": "WRITTEN",
+      "subject_code": "APP_SEC",
+      "cat_id": "APP_CAT_01",
+      "topic_id": "APP_04",
+      "topic_title": "SSRF (Server-Side Request Forgery) 취약점",
+      "frequency": "상승세 (최신 기출 빈출)",
+      "probability": "80%",
+      "question_type": "MULTIPLE_CHOICE",
+      "question_number": 52,
+      "points": 1.0,
+      "stem": "공격자가 취약한 웹 서버가 외부 URL 자원을 가져오는 기능을 악용하여, 외부에서 직접 접근할 수 없는 내부 사설망(127.0.0.1, 클라우드 메타데이터 169.254.169.254 등)으로 대신 요청을 보내게 만드는 공격 기법은?",
+      "options": [
+        {
+          "option_no": 1,
+          "content": "CSRF (Cross-Site Request Forgery)",
+          "is_correct": false
+        },
+        {
+          "option_no": 2,
+          "content": "SSRF (Server-Side Request Forgery)",
+          "is_correct": true
+        },
+        {
+          "option_no": 3,
+          "content": "SSTI (Server-Side Template Injection)",
+          "is_correct": false
+        },
+        {
+          "option_no": 4,
+          "content": "CORS (Cross-Origin Resource Sharing)",
+          "is_correct": false
+        }
+      ],
+      "explanation": "SSRF는 서버 측에서 악의적인 요청을 생성하여 내부 사설망 시스템이나 클라우드 메타데이터 서비스(169.254.169.254)를 공격하는 기법입니다."
     },
     {
       "id": "q-practical-001",
@@ -858,8 +1103,8 @@
       "cat_id": "SYS_CAT_01",
       "topic_id": "SYS_01",
       "topic_title": "버퍼 오버플로우(Buffer Overflow) 공격 및 보호 기법",
-      "frequency": "매우 높음 (필기/실기 빈출)",
-      "probability": "95%",
+      "frequency": "최고 빈도 (필기/실기 빈출)",
+      "probability": "98%",
       "question_type": "ESSAY",
       "question_number": 12,
       "points": 10.0,
@@ -938,6 +1183,35 @@
         "reference_essay": "iptables -A INPUT -p tcp --dport 80 -m recent --update --seconds 60 --hitcount 20 -j DROP\n(또는 --name 옵션과 함께 분할 구성도 유효 인정)"
       },
       "explanation": "iptables의 recent 확장은 짧은 시간에 인입되는 DoS/Brute Force 공격을 효과적으로 방어하며, -A INPUT, -p tcp --dport 80, -m recent --update --seconds 60 --hitcount 20 -j DROP 형식을 정확히 기술해야 합니다."
+    },
+    {
+      "id": "q-practical-004",
+      "cert_id": "is_engineer",
+      "exam_type": "PRACTICAL",
+      "subject_code": "SYS_SEC",
+      "cat_id": "SYS_CAT_03",
+      "topic_id": "SYS_06",
+      "topic_title": "윈도우 보안 이벤트 로그 및 계정 관리",
+      "frequency": "높음 (실기 단답형 빈출)",
+      "probability": "88%",
+      "question_type": "SHORT_ANSWER",
+      "question_number": 14,
+      "points": 3.0,
+      "stem": "윈도우 침해사고 분석 시 공격자가 무차별 대입 공격(Brute Force)을 시도하여 로그온에 실패했을 때 기록되는 윈도우 보안 이벤트 ID(Event ID) 번호를 기술하시오.",
+      "rubric": {
+        "mandatory_keywords": [
+          {
+            "keyword": "4625",
+            "points": 3.0,
+            "synonyms": [
+              "Event ID 4625",
+              "이벤트 4625"
+            ]
+          }
+        ],
+        "reference_essay": "4625 (Event ID 4625)"
+      },
+      "explanation": "윈도우 이벤트 뷰어에서 4624는 로그인 성공, 4625는 로그인 실패를 의미합니다."
     }
   ]
 }

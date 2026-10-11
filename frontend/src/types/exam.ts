@@ -35,12 +35,18 @@ export interface KeyTopic {
   related_terms: string[];
 }
 
+export interface SubCategory {
+  cat_id: string;
+  cat_name: string;
+  topics: KeyTopic[];
+}
+
 export interface SubjectInfo {
   subject_no: number;
   code: string;
   name: string;
   description: string;
-  key_topics: KeyTopic[];
+  subcategories: SubCategory[];
 }
 
 export interface Question {
@@ -48,6 +54,7 @@ export interface Question {
   cert_id: string;
   exam_type: ExamType;
   subject_code: string;
+  cat_id?: string;
   topic_id?: string;
   topic_title: string;
   frequency?: string;
@@ -71,6 +78,7 @@ export interface GradingResult {
   feedback: string;
   explanation: string;
   subject_name?: string;
+  cat_name?: string;
   topic_title?: string;
   frequency?: string;
   probability?: string;

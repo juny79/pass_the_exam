@@ -16,7 +16,7 @@ from services import GradingEngine, PredictionEngine
 
 app = FastAPI(
     title="PassForge API - 자격증 시험 합격전략 플랫폼",
-    version="1.1.0"
+    version="1.2.0"
 )
 
 # CORS 허용
@@ -74,23 +74,32 @@ def grade_answer(req: SubmitAnswerRequest):
         
     question = Question(**q_dict)
     
-    # 해당 문항이 속한 과목 및 세부 토픽 정보 탐색
+    # 해당 문항이 속한 과목, 세부 카테고리 및 세부 토픽 정보 탐색
     cert = next((c for c in data.get("certifications", []) if c["id"] == question.cert_id), None)
     subject_name = None
+    cat_name = None
     topic_info = None
     
     if cert:
         sub = next((s for s in cert.get("subjects", []) if s["code"] == question.subject_code), None)
         if sub:
             subject_name = sub.get("name")
-            topic_info = next((t for t in sub.get("key_topics", []) if t["id"] == question.topic_id), None)
+            for subcat in sub.get("subcategories", []):
+                for t in subcat.get("topics", []):
+                    if t["id"] == question.topic_id:
+                        cat_name = subcat.get("cat_name")
+                        topic_info = t
+                        break
+                if topic_info:
+                    break
 
     result = GradingEngine.grade_answer(
         question=question,
         choice=req.submitted_choice,
         text=req.submitted_text,
         topic_info=topic_info,
-        subject_name=subject_name
+        subject_name=subject_name,
+        cat_name=cat_name
     )
     return result
 

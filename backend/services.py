@@ -8,7 +8,8 @@ class GradingEngine:
         choice: int = None, 
         text: str = None,
         topic_info: Optional[Dict[str, Any]] = None,
-        subject_name: Optional[str] = None
+        subject_name: Optional[str] = None,
+        cat_name: Optional[str] = None
     ) -> GradingResult:
         
         core_concepts = topic_info.get("core_concepts") if topic_info else None
@@ -25,7 +26,7 @@ class GradingEngine:
             is_correct = (choice is not None and correct_opt is not None and choice == correct_opt.option_no)
             score = question.points if is_correct else 0.0
             
-            feedback = "정답입니다! 핵심 개념을 정확히 숙지하고 있습니다." if is_correct else f"오답입니다. (정답: {correct_opt.option_no}번)"
+            feedback = "정답입니다! 핵심 개념을 완벽히 이해하고 있습니다." if is_correct else f"오답입니다. (정답: {correct_opt.option_no}번)"
             return GradingResult(
                 question_id=question.id,
                 is_correct=is_correct,
@@ -34,6 +35,7 @@ class GradingEngine:
                 feedback=feedback,
                 explanation=question.explanation or "",
                 subject_name=subject_name,
+                cat_name=cat_name,
                 topic_title=question.topic_title,
                 frequency=freq,
                 probability=prob,
@@ -54,6 +56,7 @@ class GradingEngine:
                     feedback="답안이 비어 있거나 채점 기준이 없습니다.",
                     explanation=question.explanation or "",
                     subject_name=subject_name,
+                    cat_name=cat_name,
                     topic_title=question.topic_title,
                     frequency=freq,
                     probability=prob,
@@ -95,6 +98,7 @@ class GradingEngine:
                 feedback="\n".join(feedback_parts),
                 explanation=question.explanation or "",
                 subject_name=subject_name,
+                cat_name=cat_name,
                 topic_title=question.topic_title,
                 frequency=freq,
                 probability=prob,
@@ -112,6 +116,7 @@ class GradingEngine:
             feedback="지원되지 않는 문제 유형입니다.",
             explanation="",
             subject_name=subject_name,
+            cat_name=cat_name,
             topic_title=question.topic_title,
             frequency=freq,
             probability=prob,

@@ -21,7 +21,9 @@ import {
   Video, 
   Lightbulb, 
   Bookmark, 
-  Flame
+  Flame,
+  FolderTree,
+  FileText
 } from 'lucide-react';
 
 const API_BASE = 'http://127.0.0.1:8081';
@@ -33,7 +35,7 @@ export default function Home() {
   const [selectedSubjectCode, setSelectedSubjectCode] = useState<string>('ALL');
   const [loading, setLoading] = useState<boolean>(true);
 
-  // 5대 과목 아코디언/토글 상태 관리
+  // 1단계(과목) 토글 상태
   const [expandedSubjects, setExpandedSubjects] = useState<Record<string, boolean>>({
     SYS_SEC: true,
     NET_SEC: true,
@@ -42,6 +44,10 @@ export default function Home() {
     LAW_MGT: false,
   });
 
+  // 2단계(세부 카테고리) 토글 상태
+  const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
+
+  // 3단계(세부 토픽) 토글 상태
   const [expandedTopics, setExpandedTopics] = useState<Record<string, boolean>>({});
 
   // CBT / 실기 입력 상태
@@ -80,13 +86,20 @@ export default function Home() {
       if (sRes.ok) {
         const sData = await sRes.json();
         setSubjects(sData);
-        // 기본으로 첫 번째 토픽들은 펼침 처리
+
+        const initialCatState: Record<string, boolean> = {};
         const initialTopicState: Record<string, boolean> = {};
+
         sData.forEach((sub: SubjectInfo) => {
-          sub.key_topics.forEach((t) => {
-            initialTopicState[t.id] = true;
+          sub.subcategories.forEach((cat) => {
+            initialCatState[cat.cat_id] = true; // 기본적으로 카테고리는 펼침
+            cat.topics.forEach((t) => {
+              initialTopicState[t.id] = true; // 기본적으로 첫 토픽들도 펼침
+            });
           });
         });
+
+        setExpandedCategories(initialCatState);
         setExpandedTopics(initialTopicState);
       }
     } catch (err) {
@@ -98,6 +111,10 @@ export default function Home() {
 
   const toggleSubject = (code: string) => {
     setExpandedSubjects((prev) => ({ ...prev, [code]: !prev[code] }));
+  };
+
+  const toggleCategory = (catId: string) => {
+    setExpandedCategories((prev) => ({ ...prev, [catId]: !prev[catId] }));
   };
 
   const toggleTopic = (id: string) => {
@@ -170,7 +187,7 @@ export default function Home() {
             <h1 className="text-xl font-bold tracking-tight bg-gradient-to-r from-white via-indigo-200 to-slate-400 bg-clip-text text-transparent">
               PassForge : 정보보안기사
             </h1>
-            <p className="text-xs text-slate-400">유튜브 명강의 요약 · 두음 암기비법 · AI 실기 채점 합격전략 플랫폼</p>
+            <p className="text-xs text-slate-400">세부 카테고리별 기출 족보 · 유튜브 명강의 요약 · AI 실기 채점 플랫폼</p>
           </div>
         </div>
 
@@ -185,7 +202,7 @@ export default function Home() {
             }`}
           >
             <BookOpen className="w-4 h-4" />
-            5대 과목 토글 족보
+            5대 과목 세부 카테고리 족보
           </button>
           <button
             onClick={() => setActiveTab('WRITTEN')}
@@ -225,36 +242,50 @@ export default function Home() {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-24 space-y-4 text-slate-400">
             <RefreshCw className="w-8 h-8 animate-spin text-indigo-500" />
-            <p>5대 과목 족보 및 문항 데이터 로딩 중...</p>
+            <p>세부 카테고리 및 문항 족보 데이터 로딩 중...</p>
           </div>
         ) : activeTab === 'SUBJECTS' ? (
-          /* ================= 5대 과목 토글 형식 지식베이스 브라우저 ================= */
+          /* ================= 3단계(과목-세부카테고리-토픽) 토글 브라우저 ================= */
           <div className="space-y-6">
             <div className="flex flex-wrap items-center justify-between gap-4 pb-2">
               <div>
                 <h2 className="text-xl font-bold flex items-center gap-2">
-                  <BookOpen className="w-5 h-5 text-indigo-400" />
-                  정보보안기사 5대 영역 핵심 족보 & 유튜브 특강 요약
+                  <FolderTree className="w-5 h-5 text-indigo-400" />
+                  정보보안기사 5대 영역 세부 카테고리별 종합 족보
                 </h2>
                 <p className="text-xs text-slate-400 mt-1">
-                  과목 및 세부 주제를 <strong>클릭(토글)</strong>하여 핵심 이론, 수제비/알기사 두음 암기 비법, 실기 합격 포인트를 학습하세요.
+                  <strong>[1단계 과목] → [2단계 세부 카테고리] → [3단계 기출 주제]</strong>의 3계층 아코디언 토글을 통해 방대한 보안 이론과 수제비/알기사 핵심 요약을 학습하세요.
                 </p>
               </div>
 
-              {/* 전체 펼치기 / 접기 토글 */}
+              {/* 전체 펼치기 / 접기 제어 */}
               <div className="flex gap-2">
                 <button
                   onClick={() => {
-                    const allOpen: Record<string, boolean> = {};
-                    subjects.forEach((s) => (allOpen[s.code] = true));
-                    setExpandedSubjects(allOpen);
+                    const allOpenSubs: Record<string, boolean> = {};
+                    const allOpenCats: Record<string, boolean> = {};
+                    const allOpenTopics: Record<string, boolean> = {};
+                    subjects.forEach((s) => {
+                      allOpenSubs[s.code] = true;
+                      s.subcategories.forEach((c) => {
+                        allOpenCats[c.cat_id] = true;
+                        c.topics.forEach((t) => (allOpenTopics[t.id] = true));
+                      });
+                    });
+                    setExpandedSubjects(allOpenSubs);
+                    setExpandedCategories(allOpenCats);
+                    setExpandedTopics(allOpenTopics);
                   }}
                   className="px-3 py-1 bg-slate-900 border border-slate-800 text-xs text-slate-300 rounded-lg hover:bg-slate-800 transition"
                 >
-                  과목 전체 펼치기
+                  모든 단계 전체 펼치기
                 </button>
                 <button
-                  onClick={() => setExpandedSubjects({})}
+                  onClick={() => {
+                    setExpandedSubjects({});
+                    setExpandedCategories({});
+                    setExpandedTopics({});
+                  }}
                   className="px-3 py-1 bg-slate-900 border border-slate-800 text-xs text-slate-300 rounded-lg hover:bg-slate-800 transition"
                 >
                   전체 접기
@@ -262,17 +293,18 @@ export default function Home() {
               </div>
             </div>
 
-            {/* 과목 목록 (대단원 아코디언) */}
+            {/* 1단계: 과목 아코디언 */}
             <div className="space-y-4">
               {subjects.map((sub) => {
                 const isSubOpen = expandedSubjects[sub.code] ?? false;
+                const totalTopics = sub.subcategories.reduce((acc, c) => acc + c.topics.length, 0);
 
                 return (
                   <div
                     key={sub.code}
                     className="bg-slate-900 border border-slate-800 rounded-2xl shadow-xl overflow-hidden transition-all"
                   >
-                    {/* 과목 헤더 (토글 버튼) */}
+                    {/* 과목 헤더 */}
                     <button
                       onClick={() => toggleSubject(sub.code)}
                       className="w-full p-5 flex items-center justify-between bg-slate-900 hover:bg-slate-850/80 transition text-left"
@@ -290,9 +322,9 @@ export default function Home() {
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-3">
                         <span className="text-xs text-indigo-400 font-semibold hidden sm:inline">
-                          토픽 {sub.key_topics.length}개
+                          카테고리 {sub.subcategories.length}개 · 주제 {totalTopics}개
                         </span>
                         <div className="p-1.5 rounded-lg bg-slate-800 text-slate-400">
                           {isSubOpen ? <ChevronDown className="w-5 h-5 text-indigo-400" /> : <ChevronRight className="w-5 h-5" />}
@@ -300,86 +332,117 @@ export default function Home() {
                       </div>
                     </button>
 
-                    {/* 과목 내용 (펼쳐졌을 때) */}
+                    {/* 2단계: 세부 카테고리 목록 (펼쳐졌을 때) */}
                     {isSubOpen && (
-                      <div className="p-5 pt-1 border-t border-slate-800/80 bg-slate-950/40 space-y-4">
-                        {sub.key_topics.map((t) => {
-                          const isTopicOpen = expandedTopics[t.id] ?? true;
+                      <div className="p-5 pt-2 border-t border-slate-800/80 bg-slate-950/40 space-y-4">
+                        {sub.subcategories.map((cat) => {
+                          const isCatOpen = expandedCategories[cat.cat_id] ?? true;
 
                           return (
                             <div
-                              key={t.id}
-                              className="bg-slate-950/90 border border-slate-800 rounded-xl overflow-hidden transition hover:border-slate-700"
+                              key={cat.cat_id}
+                              className="border border-slate-800 rounded-xl overflow-hidden bg-slate-900/60 transition"
                             >
-                              {/* 세부 토픽 헤더 (소단원 토글) */}
+                              {/* 세부 카테고리 헤더 */}
                               <button
-                                onClick={() => toggleTopic(t.id)}
-                                className="w-full p-4 flex items-center justify-between bg-slate-950 hover:bg-slate-900/60 transition text-left"
+                                onClick={() => toggleCategory(cat.cat_id)}
+                                className="w-full p-3.5 px-4 flex items-center justify-between bg-slate-900/90 hover:bg-slate-850 transition text-left"
                               >
                                 <div className="flex items-center gap-2.5">
-                                  <Bookmark className="w-4 h-4 text-indigo-400" />
-                                  <span className="text-sm font-bold text-slate-200">{t.title}</span>
+                                  <Layers className="w-4 h-4 text-indigo-400" />
+                                  <span className="text-sm font-bold text-indigo-200">{cat.cat_name}</span>
+                                  <span className="text-[11px] text-slate-500">({cat.topics.length}개 빈출 주제)</span>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                  <span className="text-[11px] px-2 py-0.5 bg-amber-500/10 text-amber-300 border border-amber-500/30 rounded font-semibold flex items-center gap-1">
-                                    <Flame className="w-3 h-3 text-amber-400" />
-                                    출제 {t.probability}
-                                  </span>
-                                  {isTopicOpen ? <ChevronDown className="w-4 h-4 text-slate-400" /> : <ChevronRight className="w-4 h-4 text-slate-400" />}
+                                <div className="text-slate-400">
+                                  {isCatOpen ? <ChevronDown className="w-4 h-4 text-indigo-400" /> : <ChevronRight className="w-4 h-4" />}
                                 </div>
                               </button>
 
-                              {/* 세부 토픽 내용 (토글 본문) */}
-                              {isTopicOpen && (
-                                <div className="p-4 pt-1 border-t border-slate-900 space-y-3.5 text-xs">
-                                  {/* 1. 핵심 이론 요약 */}
-                                  <div className="p-3 bg-slate-900/60 rounded-lg border border-slate-850 leading-relaxed text-slate-300">
-                                    <strong className="text-indigo-300 block mb-1">📖 핵심 개념 이론:</strong>
-                                    {t.core_concepts}
-                                  </div>
+                              {/* 3단계: 세부 토픽 목록 */}
+                              {isCatOpen && (
+                                <div className="p-4 space-y-3 bg-slate-950/60 border-t border-slate-850">
+                                  {cat.topics.map((t) => {
+                                    const isTopicOpen = expandedTopics[t.id] ?? true;
 
-                                  {/* 2. 유튜브 명강의 발췌 요약 및 두음 암기 비법 */}
-                                  {t.youtube_tips && (
-                                    <div className="p-3.5 bg-rose-950/20 border border-rose-900/40 rounded-xl space-y-2">
-                                      <div className="flex items-center justify-between text-rose-300 font-bold">
-                                        <div className="flex items-center gap-1.5">
-                                          <Video className="w-4 h-4 text-rose-500" />
-                                          <span>유튜브 명강의 요약 특강</span>
-                                        </div>
-                                        <span className="text-[10px] px-2 py-0.5 bg-rose-500/10 rounded-full border border-rose-500/20 text-rose-300">
-                                          출처: {t.youtube_tips.channel}
-                                        </span>
-                                      </div>
-
-                                      <div className="flex items-center gap-2 p-2 bg-rose-950/40 rounded-lg border border-rose-800/40 text-rose-200 font-semibold">
-                                        <Lightbulb className="w-4 h-4 text-amber-400 flex-shrink-0" />
-                                        <span>두음 암기 공식: {t.youtube_tips.mnemonic}</span>
-                                      </div>
-
-                                      <div className="text-slate-300 whitespace-pre-line leading-relaxed font-sans pl-1">
-                                        {t.youtube_tips.lecture_summary}
-                                      </div>
-                                    </div>
-                                  )}
-
-                                  {/* 3. 실기 시험 대비 포인트 */}
-                                  <div className="p-3 bg-emerald-950/20 rounded-lg border border-emerald-900/30 text-emerald-300/90 leading-relaxed">
-                                    <strong className="text-emerald-300 block mb-1">🎯 실기 서술/단답형 합격 포인트:</strong>
-                                    {t.practical_point}
-                                  </div>
-
-                                  {/* 4. 관련 키워드 태그 */}
-                                  <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                                    <span className="text-[11px] text-slate-400 font-semibold mr-1">연관 키워드:</span>
-                                    {t.related_terms.map((term, idx) => (
-                                      <span
-                                        key={idx}
-                                        className="text-[11px] px-2 py-0.5 bg-slate-900 text-slate-400 border border-slate-800 rounded-md font-mono"
+                                    return (
+                                      <div
+                                        key={t.id}
+                                        className="bg-slate-950 border border-slate-800 rounded-xl overflow-hidden transition hover:border-slate-700"
                                       >
-                                        #{term}
-                                      </span>
-                                    ))}
-                                  </div>
+                                        {/* 토픽 헤더 버튼 */}
+                                        <button
+                                          onClick={() => toggleTopic(t.id)}
+                                          className="w-full p-3.5 flex items-center justify-between bg-slate-950 hover:bg-slate-900/50 transition text-left"
+                                        >
+                                          <div className="flex items-center gap-2">
+                                            <Bookmark className="w-4 h-4 text-indigo-400" />
+                                            <span className="text-xs md:text-sm font-bold text-slate-200">{t.title}</span>
+                                          </div>
+                                          <div className="flex items-center gap-2">
+                                            <span className="text-[10px] md:text-[11px] px-2 py-0.5 bg-amber-500/10 text-amber-300 border border-amber-500/30 rounded font-semibold flex items-center gap-1">
+                                              <Flame className="w-3 h-3 text-amber-400" />
+                                              출제 {t.probability}
+                                            </span>
+                                            {isTopicOpen ? <ChevronDown className="w-4 h-4 text-slate-400" /> : <ChevronRight className="w-4 h-4 text-slate-400" />}
+                                          </div>
+                                        </button>
+
+                                        {/* 토픽 본문 (상세 학습 내용 및 유튜브 요약) */}
+                                        {isTopicOpen && (
+                                          <div className="p-4 pt-1 border-t border-slate-900 space-y-3.5 text-xs">
+                                            {/* 핵심 이론 */}
+                                            <div className="p-3 bg-slate-900/60 rounded-lg border border-slate-850 leading-relaxed text-slate-300">
+                                              <strong className="text-indigo-300 block mb-1">📖 핵심 개념 이론:</strong>
+                                              {t.core_concepts}
+                                            </div>
+
+                                            {/* 유튜브 명강의 요약 & 두음 암기 비법 */}
+                                            {t.youtube_tips && (
+                                              <div className="p-3.5 bg-rose-950/20 border border-rose-900/40 rounded-xl space-y-2">
+                                                <div className="flex items-center justify-between text-rose-300 font-bold">
+                                                  <div className="flex items-center gap-1.5">
+                                                    <Video className="w-4 h-4 text-rose-500" />
+                                                    <span>유튜브 명강의 요약 특강</span>
+                                                  </div>
+                                                  <span className="text-[10px] px-2 py-0.5 bg-rose-500/10 rounded-full border border-rose-500/20 text-rose-300">
+                                                    출처: {t.youtube_tips.channel}
+                                                  </span>
+                                                </div>
+
+                                                <div className="flex items-center gap-2 p-2 bg-rose-950/40 rounded-lg border border-rose-800/40 text-rose-200 font-semibold">
+                                                  <Lightbulb className="w-4 h-4 text-amber-400 flex-shrink-0" />
+                                                  <span>두음 암기 공식: {t.youtube_tips.mnemonic}</span>
+                                                </div>
+
+                                                <div className="text-slate-300 whitespace-pre-line leading-relaxed font-sans pl-1">
+                                                  {t.youtube_tips.lecture_summary}
+                                                </div>
+                                              </div>
+                                            )}
+
+                                            {/* 실기 시험 대비 포인트 */}
+                                            <div className="p-3 bg-emerald-950/20 rounded-lg border border-emerald-900/30 text-emerald-300/90 leading-relaxed">
+                                              <strong className="text-emerald-300 block mb-1">🎯 실기 서술/단답형 합격 포인트:</strong>
+                                              {t.practical_point}
+                                            </div>
+
+                                            {/* 관련 키워드 태그 */}
+                                            <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                                              <span className="text-[11px] text-slate-400 font-semibold mr-1">연관 키워드:</span>
+                                              {t.related_terms.map((term, idx) => (
+                                                <span
+                                                  key={idx}
+                                                  className="text-[11px] px-2 py-0.5 bg-slate-900 text-slate-400 border border-slate-800 rounded-md font-mono"
+                                                >
+                                                  #{term}
+                                                </span>
+                                              ))}
+                                            </div>
+                                          </div>
+                                        )}
+                                      </div>
+                                    );
+                                  })}
                                 </div>
                               )}
                             </div>
@@ -639,14 +702,20 @@ export default function Home() {
 
                         {/* 2. 지식 연계 분석 카드 */}
                         <div className="bg-slate-950 border border-slate-800 rounded-xl p-5 space-y-4">
-                          <div className="flex items-center justify-between pb-3 border-b border-slate-850">
+                          <div className="flex flex-wrap items-center justify-between pb-3 border-b border-slate-850 gap-2">
                             <h4 className="text-sm font-bold text-indigo-300 flex items-center gap-2">
                               <BookOpen className="w-4 h-4" />
                               연계 과목 및 출제 경향 심층 분석
                             </h4>
-                            <span className="text-xs text-slate-400">
-                              소속 과목: <strong className="text-slate-200">{result.subject_name || q.subject_code}</strong>
-                            </span>
+                            <div className="text-xs text-slate-400 flex items-center gap-1.5">
+                              <span>과목: <strong className="text-slate-200">{result.subject_name || q.subject_code}</strong></span>
+                              {result.cat_name && (
+                                <>
+                                  <span>&gt;</span>
+                                  <span className="text-indigo-300 font-semibold">{result.cat_name}</span>
+                                </>
+                              )}
+                            </div>
                           </div>
 
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -728,7 +797,7 @@ export default function Home() {
 
       {/* 푸터 */}
       <footer className="border-t border-slate-900 py-6 text-center text-xs text-slate-600">
-        PassForge Framework © 2026 — 유튜브 명강의 요약 & 국가공인 IT자격증 합격전략 플랫폼
+        PassForge Framework © 2026 — 3단계 세부 카테고리 족보 & 유튜브 특강 요약 에듀테크 플랫폼
       </footer>
     </div>
   );

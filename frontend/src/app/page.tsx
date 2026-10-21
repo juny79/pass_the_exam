@@ -23,12 +23,42 @@ import {
   Bookmark, 
   Flame,
   FolderTree,
-  FileText
+  FileText,
+  HardHat
 } from 'lucide-react';
 
 const API_BASE = 'http://127.0.0.1:8081';
 
+interface CertConfig {
+  id: string;
+  title: string;
+  subtitle: string;
+  badge: string;
+  subjectsCount: number;
+  totalTopics: number;
+}
+
+const CERTS: CertConfig[] = [
+  {
+    id: 'is_engineer',
+    title: '정보보안기사',
+    subtitle: '5과목 50개 카테고리 250개 기출 토픽 · 유튜브 명강의 요약 · AI 실기 채점',
+    badge: 'KCA 공인',
+    subjectsCount: 5,
+    totalTopics: 250,
+  },
+  {
+    id: 'ind_safety_engineer',
+    title: '산업안전기사',
+    subtitle: '6과목 60개 카테고리 300개 기출 토픽 · 복합형(필답/작업형) 대비 · 합격 예측',
+    badge: 'Q-Net 국가기술',
+    subjectsCount: 6,
+    totalTopics: 300,
+  },
+];
+
 export default function Home() {
+  const [selectedCertId, setSelectedCertId] = useState<string>('is_engineer');
   const [activeTab, setActiveTab] = useState<'WRITTEN' | 'PRACTICAL' | 'SUBJECTS' | 'PREDICTION'>('SUBJECTS');
   const [questions, setQuestions] = useState<Question[]>([]);
   const [subjects, setSubjects] = useState<SubjectInfo[]>([]);
@@ -36,13 +66,7 @@ export default function Home() {
   const [loading, setLoading] = useState<boolean>(true);
 
   // 1단계(과목) 토글 상태
-  const [expandedSubjects, setExpandedSubjects] = useState<Record<string, boolean>>({
-    SYS_SEC: true,
-    NET_SEC: true,
-    APP_SEC: false,
-    GEN_SEC: false,
-    LAW_MGT: false,
-  });
+  const [expandedSubjects, setExpandedSubjects] = useState<Record<string, boolean>>({});
 
   // 2단계(세부 카테고리) 토글 상태
   const [expandedCategories, setExpandedCategories] = useState<Record<string, boolean>>({});
@@ -57,26 +81,28 @@ export default function Home() {
   const [gradingLoading, setGradingLoading] = useState<Record<string, boolean>>({});
 
   // 합격 예측 시뮬레이션 상태
-  const [subjectScores, setSubjectScores] = useState({
-    SYS_SEC: 65,
-    NET_SEC: 70,
-    APP_SEC: 55,
-    GEN_SEC: 60,
-    LAW_MGT: 50,
-  });
+  const [subjectScores, setSubjectScores] = useState<Record<string, number>>({});
   const [prediction, setPrediction] = useState<PassPredictionResult | null>(null);
   const [predictLoading, setPredictLoading] = useState(false);
 
-  useEffect(() => {
-    fetchInitialData();
-  }, []);
+  const currentCert = CERTS.find((c) => c.id === selectedCertId) || CERTS[0];
 
-  const fetchInitialData = async () => {
+  useEffect(() => {
+    fetchInitialData(selectedCertId);
+  }, [selectedCertId]);
+
+  const fetchInitialData = async (certId: string) => {
     setLoading(true);
+    setSelectedSubjectCode('ALL');
+    setGradingResults({});
+    setSelectedChoices({});
+    setEssayAnswers({});
+    setPrediction(null);
+
     try {
       const [qRes, sRes] = await Promise.all([
-        fetch(`${API_BASE}/api/questions?cert_id=is_engineer`),
-        fetch(`${API_BASE}/api/subjects?cert_id=is_engineer`),
+        fetch(`${API_BASE}/api/questions?cert_id=${certId}`),
+        fetch(`${API_BASE}/api/subjects?cert_id=${certId}`),
       ]);
 
       if (qRes.ok) {
@@ -84,23 +110,29 @@ export default function Home() {
         setQuestions(qData);
       }
       if (sRes.ok) {
-        const sData = await sRes.json();
+        const sData: SubjectInfo[] = await sRes.json();
         setSubjects(sData);
 
+        const initialSubState: Record<string, boolean> = {};
         const initialCatState: Record<string, boolean> = {};
         const initialTopicState: Record<string, boolean> = {};
+        const initialScores: Record<string, number> = {};
 
-        sData.forEach((sub: SubjectInfo) => {
+        sData.forEach((sub, sIdx) => {
+          initialSubState[sub.code] = sIdx < 2;
+          initialScores[sub.code] = 60;
           sub.subcategories.forEach((cat) => {
-            initialCatState[cat.cat_id] = true; // 기본적으로 카테고리는 펼침
+            initialCatState[cat.cat_id] = true;
             cat.topics.forEach((t) => {
-              initialTopicState[t.id] = true; // 기본적으로 첫 토픽들도 펼침
+              initialTopicState[t.id] = true;
             });
           });
         });
 
+        setExpandedSubjects(initialSubState);
         setExpandedCategories(initialCatState);
         setExpandedTopics(initialTopicState);
+        setSubjectScores(initialScores);
       }
     } catch (err) {
       console.error('Failed to fetch initial data:', err);
@@ -154,7 +186,7 @@ export default function Home() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          cert_id: 'is_engineer',
+          cert_id: selectedCertId,
           exam_type: 'WRITTEN',
           subject_scores: subjectScores,
         }),
@@ -179,61 +211,87 @@ export default function Home() {
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
       {/* 상단 헤더 */}
       <header className="border-b border-slate-800 bg-slate-900/90 backdrop-blur sticky top-0 z-50 px-6 py-4 flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-indigo-600 rounded-xl text-white shadow-lg shadow-indigo-500/30">
-            <ShieldCheck className="w-6 h-6" />
+        <div className="flex items-center gap-4">
+          <div className="p-2.5 bg-indigo-600 rounded-xl text-white shadow-lg shadow-indigo-500/30 flex items-center justify-center">
+            {selectedCertId === 'ind_safety_engineer' ? (
+              <HardHat className="w-6 h-6 text-amber-300" />
+            ) : (
+              <ShieldCheck className="w-6 h-6" />
+            )}
           </div>
           <div>
-            <h1 className="text-xl font-bold tracking-tight bg-gradient-to-r from-white via-indigo-200 to-slate-400 bg-clip-text text-transparent">
-              PassForge : 정보보안기사
-            </h1>
-            <p className="text-xs text-slate-400">세부 카테고리별 기출 족보 · 유튜브 명강의 요약 · AI 실기 채점 플랫폼</p>
+            <div className="flex items-center gap-2.5">
+              <h1 className="text-xl font-bold tracking-tight bg-gradient-to-r from-white via-indigo-200 to-slate-400 bg-clip-text text-transparent">
+                PassForge : {currentCert.title}
+              </h1>
+              <span className="text-[11px] px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-300 border border-indigo-500/30 font-semibold">
+                {currentCert.badge}
+              </span>
+            </div>
+            <p className="text-xs text-slate-400 mt-0.5">{currentCert.subtitle}</p>
           </div>
         </div>
 
-        {/* 탭 네비게이션 */}
-        <div className="flex bg-slate-800/90 p-1.5 rounded-xl border border-slate-700/60 overflow-x-auto">
-          <button
-            onClick={() => setActiveTab('SUBJECTS')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition-all flex items-center gap-1.5 ${
-              activeTab === 'SUBJECTS'
-                ? 'bg-indigo-600 text-white shadow'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            <BookOpen className="w-4 h-4" />
-            5대 과목 세부 카테고리 족보
-          </button>
-          <button
-            onClick={() => setActiveTab('WRITTEN')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition-all ${
-              activeTab === 'WRITTEN'
-                ? 'bg-indigo-600 text-white shadow'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            필기 CBT 모의고사
-          </button>
-          <button
-            onClick={() => setActiveTab('PRACTICAL')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition-all ${
-              activeTab === 'PRACTICAL'
-                ? 'bg-indigo-600 text-white shadow'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            실기 AI 서술형 채점
-          </button>
-          <button
-            onClick={() => setActiveTab('PREDICTION')}
-            className={`px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition-all ${
-              activeTab === 'PREDICTION'
-                ? 'bg-indigo-600 text-white shadow'
-                : 'text-slate-400 hover:text-slate-200'
-            }`}
-          >
-            합격/과락 예측
-          </button>
+        {/* 자격증 선택 드롭다운 & 탭 네비게이션 */}
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="relative">
+            <select
+              value={selectedCertId}
+              onChange={(e) => setSelectedCertId(e.target.value)}
+              className="bg-slate-800 border border-slate-700 text-xs md:text-sm font-bold text-indigo-300 rounded-xl px-3.5 py-2 pr-8 focus:outline-none focus:border-indigo-500 appearance-none cursor-pointer shadow-md"
+            >
+              {CERTS.map((c) => (
+                <option key={c.id} value={c.id} className="bg-slate-900 text-slate-100">
+                  자격증: {c.title} ({c.subjectsCount}과목 {c.totalTopics}토픽)
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+          </div>
+
+          <div className="flex bg-slate-800/90 p-1.5 rounded-xl border border-slate-700/60 overflow-x-auto">
+            <button
+              onClick={() => setActiveTab('SUBJECTS')}
+              className={`px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition-all flex items-center gap-1.5 ${
+                activeTab === 'SUBJECTS'
+                  ? 'bg-indigo-600 text-white shadow'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              <BookOpen className="w-4 h-4" />
+              {currentCert.subjectsCount}대 과목 세부 족보
+            </button>
+            <button
+              onClick={() => setActiveTab('WRITTEN')}
+              className={`px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition-all ${
+                activeTab === 'WRITTEN'
+                  ? 'bg-indigo-600 text-white shadow'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              필기 CBT 모의고사
+            </button>
+            <button
+              onClick={() => setActiveTab('PRACTICAL')}
+              className={`px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition-all ${
+                activeTab === 'PRACTICAL'
+                  ? 'bg-indigo-600 text-white shadow'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              실기 AI 서술형 채점
+            </button>
+            <button
+              onClick={() => setActiveTab('PREDICTION')}
+              className={`px-3.5 py-1.5 rounded-lg text-xs md:text-sm font-semibold transition-all ${
+                activeTab === 'PREDICTION'
+                  ? 'bg-indigo-600 text-white shadow'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              합격/과락 예측
+            </button>
+          </div>
         </div>
       </header>
 
@@ -242,7 +300,7 @@ export default function Home() {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-24 space-y-4 text-slate-400">
             <RefreshCw className="w-8 h-8 animate-spin text-indigo-500" />
-            <p>세부 카테고리 및 문항 족보 데이터 로딩 중...</p>
+            <p>{currentCert.title} 세부 카테고리 및 문항 족보 데이터 로딩 중...</p>
           </div>
         ) : activeTab === 'SUBJECTS' ? (
           /* ================= 3단계(과목-세부카테고리-토픽) 토글 브라우저 ================= */
@@ -251,10 +309,10 @@ export default function Home() {
               <div>
                 <h2 className="text-xl font-bold flex items-center gap-2">
                   <FolderTree className="w-5 h-5 text-indigo-400" />
-                  정보보안기사 5대 영역 세부 카테고리별 종합 족보
+                  {currentCert.title} {currentCert.subjectsCount}대 과목 세부 카테고리별 종합 족보
                 </h2>
                 <p className="text-xs text-slate-400 mt-1">
-                  <strong>[1단계 과목] → [2단계 세부 카테고리] → [3단계 기출 주제]</strong>의 3계층 아코디언 토글을 통해 방대한 보안 이론과 수제비/알기사 핵심 요약을 학습하세요.
+                  <strong>[1단계 과목] → [2단계 세부 카테고리] → [3단계 기출 주제]</strong>의 3계층 아코디언 토글을 통해 출제기준 및 기출·유튜브 명강의 핵심 요약을 학습하세요.
                 </p>
               </div>
 
@@ -461,35 +519,33 @@ export default function Home() {
             <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
               <div className="flex items-center gap-3 mb-6">
                 <TrendingUp className="w-6 h-6 text-indigo-400" />
-                <h2 className="text-xl font-bold">5개 과목별 점수 시뮬레이션 (필기 과락/평균 분석)</h2>
+                <h2 className="text-xl font-bold">
+                  {currentCert.title} {subjects.length}개 과목별 점수 시뮬레이션 (필기 과락/평균 분석)
+                </h2>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4 mb-8">
-                {[
-                  { key: 'SYS_SEC', label: '1. 시스템 보안' },
-                  { key: 'NET_SEC', label: '2. 네트워크 보안' },
-                  { key: 'APP_SEC', label: '3. 애플리케이션 보안' },
-                  { key: 'GEN_SEC', label: '4. 정보보안 일반' },
-                  { key: 'LAW_MGT', label: '5. 관리 및 법규' },
-                ].map((sub) => (
-                  <div key={sub.key} className="bg-slate-950 p-4 rounded-xl border border-slate-800">
-                    <label className="text-xs text-slate-400 font-medium block mb-2">{sub.label}</label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 mb-8">
+                {subjects.map((sub) => (
+                  <div key={sub.code} className="bg-slate-950 p-3.5 rounded-xl border border-slate-800">
+                    <label className="text-xs text-slate-300 font-medium block mb-1.5 truncate">
+                      {sub.subject_no}. {sub.name}
+                    </label>
                     <input
                       type="number"
                       min="0"
                       max="100"
-                      value={subjectScores[sub.key as keyof typeof subjectScores]}
+                      value={subjectScores[sub.code] ?? 60}
                       onChange={(e) =>
                         setSubjectScores({
                           ...subjectScores,
-                          [sub.key]: Math.min(100, Math.max(0, Number(e.target.value))),
+                          [sub.code]: Math.min(100, Math.max(0, Number(e.target.value))),
                         })
                       }
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-lg font-bold text-center text-indigo-300 focus:outline-none focus:border-indigo-500"
+                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 text-base font-bold text-center text-indigo-300 focus:outline-none focus:border-indigo-500"
                     />
-                    <div className="mt-2 text-right">
-                      {subjectScores[sub.key as keyof typeof subjectScores] < 40 && (
-                        <span className="text-xs text-rose-400 font-medium">⚠️ 과락 기준</span>
+                    <div className="mt-1.5 text-right">
+                      {(subjectScores[sub.code] ?? 60) < 40 && (
+                        <span className="text-[11px] text-rose-400 font-semibold">⚠️ 과락 기준</span>
                       )}
                     </div>
                   </div>
@@ -502,7 +558,7 @@ export default function Home() {
                 className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl transition shadow-lg shadow-indigo-600/30 flex items-center justify-center gap-2"
               >
                 {predictLoading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Sparkles className="w-5 h-5" />}
-                합격 가능성 및 과락 위험도 진단하기
+                {currentCert.title} 합격 가능성 및 과락 위험도 진단하기
               </button>
             </div>
 
@@ -510,7 +566,7 @@ export default function Home() {
               <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-6">
                 <h3 className="text-lg font-bold flex items-center gap-2">
                   <Cpu className="w-5 h-5 text-indigo-400" />
-                  AI 분석 리포트 결과
+                  AI 분석 리포트 결과 ({currentCert.title})
                 </h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

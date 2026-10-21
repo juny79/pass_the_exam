@@ -1,0 +1,388 @@
+[
+  {
+    "id": "q-ind-written-001",
+    "cert_id": "ind_safety_engineer",
+    "exam_type": "WRITTEN",
+    "subject_code": "IND_SAF",
+    "cat_id": "IND_SAF_CAT_02",
+    "topic_id": "IND_SAF_02_01",
+    "topic_title": "도수율 및 강도율 산출 공식",
+    "frequency": "최다 빈출 (매회 1~2문항 필수 출제)",
+    "probability": "98%",
+    "question_type": "MULTIPLE_CHOICE",
+    "question_number": 1,
+    "points": 1.0,
+    "stem": "연평균 500명의 근로자가 주 40시간씩 연간 50주를 근무하는 사업장에서 한 해 동안 10건의 재해가 발생하였다. 이 사업장의 도수율(Frequency Rate)은 얼마인가?",
+    "options": [
+      {
+        "option_no": 1,
+        "content": "5.0",
+        "is_correct": false
+      },
+      {
+        "option_no": 2,
+        "content": "10.0",
+        "is_correct": true
+      },
+      {
+        "option_no": 3,
+        "content": "15.0",
+        "is_correct": false
+      },
+      {
+        "option_no": 4,
+        "content": "20.0",
+        "is_correct": false
+      }
+    ],
+    "explanation": "연근로총시간수 = 500명 x 40시간 x 50주 = 1,000,000시간. 도수율 = (10 / 1,000,000) x 1,000,000 = 10.0"
+  },
+  {
+    "id": "q-ind-written-002",
+    "cert_id": "ind_safety_engineer",
+    "exam_type": "WRITTEN",
+    "subject_code": "IND_ENG",
+    "cat_id": "IND_ENG_CAT_08",
+    "topic_id": "IND_ENG_08_04",
+    "topic_title": "Fail-Safe의 개념 및 3가지 분류",
+    "frequency": "최다 빈출 (필기/실기 단골)",
+    "probability": "98%",
+    "question_type": "MULTIPLE_CHOICE",
+    "question_number": 21,
+    "points": 1.0,
+    "stem": "기계나 시스템에 고장이 발생하더라도 통로를 폐쇄하거나 동력을 즉시 차단하여 시스템을 안전한 상태로 정지시키는 Fail-Safe 유형은?",
+    "options": [
+      {
+        "option_no": 1,
+        "content": "Fail-Operational",
+        "is_correct": false
+      },
+      {
+        "option_no": 2,
+        "content": "Fail-Active",
+        "is_correct": false
+      },
+      {
+        "option_no": 3,
+        "content": "Fail-Passive",
+        "is_correct": true
+      },
+      {
+        "option_no": 4,
+        "content": "Fail-Soft",
+        "is_correct": false
+      }
+    ],
+    "explanation": "Fail-Passive는 부품이나 시스템 고장 시 기계가 즉시 작동을 멈추고 안전 상태로 유지되는 형태입니다."
+  },
+  {
+    "id": "q-ind-written-003",
+    "cert_id": "ind_safety_engineer",
+    "exam_type": "WRITTEN",
+    "subject_code": "IND_MEC",
+    "cat_id": "IND_MEC_CAT_04",
+    "topic_id": "IND_MEC_04_01",
+    "topic_title": "롤러기의 급정지장치 조작부 위치 규격",
+    "frequency": "매회 출제",
+    "probability": "98%",
+    "question_type": "MULTIPLE_CHOICE",
+    "question_number": 41,
+    "points": 1.0,
+    "stem": "롤러기의 급정지장치 중 복부조작식의 설치 높이 기준으로 올바른 것은?",
+    "options": [
+      {
+        "option_no": 1,
+        "content": "밑면에서 0.4m 이상 0.6m 이내",
+        "is_correct": false
+      },
+      {
+        "option_no": 2,
+        "content": "밑면에서 0.8m 이상 1.1m 이내",
+        "is_correct": true
+      },
+      {
+        "option_no": 3,
+        "content": "밑면에서 1.2m 이상 1.5m 이내",
+        "is_correct": false
+      },
+      {
+        "option_no": 4,
+        "content": "밑면에서 1.8m 이내",
+        "is_correct": false
+      }
+    ],
+    "explanation": "복부 조작식: 밑면에서 0.8m 이상 1.1m 이내, 손 조작식: 밑면에서 1.8m 이내, 무릎 조작식: 0.4m 이상 0.6m 이내."
+  },
+  {
+    "id": "q-ind-written-004",
+    "cert_id": "ind_safety_engineer",
+    "exam_type": "WRITTEN",
+    "subject_code": "IND_ELE",
+    "cat_id": "IND_ELE_CAT_07",
+    "topic_id": "IND_ELE_07_05",
+    "topic_title": "방폭구조 기호 명판 해석",
+    "frequency": "매회 출제",
+    "probability": "98%",
+    "question_type": "MULTIPLE_CHOICE",
+    "question_number": 61,
+    "points": 1.0,
+    "stem": "방폭 전기기기의 표시 기호가 [Ex d IIC T4]로 표시되어 있을 때, 설명으로 옳지 않은 것은?",
+    "options": [
+      {
+        "option_no": 1,
+        "content": "d는 내압 방폭구조를 의미한다.",
+        "is_correct": false
+      },
+      {
+        "option_no": 2,
+        "content": "IIC는 가장 폭발위험성이 높은 수소, 아세틸렌 분위기에도 사용 가능하다.",
+        "is_correct": false
+      },
+      {
+        "option_no": 3,
+        "content": "T4 등급 기기의 최고 표면온도는 135도 이하이다.",
+        "is_correct": false
+      },
+      {
+        "option_no": 4,
+        "content": "발화점이 100도인 가스 분위기에 안전하게 사용할 수 있다.",
+        "is_correct": true
+      }
+    ],
+    "explanation": "T4 등급 기기의 최고 표면온도는 135도이므로 발화점이 100도인 분위기에서는 발화 위험이 있어 사용할 수 없습니다."
+  },
+  {
+    "id": "q-ind-written-005",
+    "cert_id": "ind_safety_engineer",
+    "exam_type": "WRITTEN",
+    "subject_code": "IND_CHM",
+    "cat_id": "IND_CHM_CAT_03",
+    "topic_id": "IND_CHM_03_02",
+    "topic_title": "르샤틀리에 혼합가스 폭발한계 계산",
+    "frequency": "최다 빈출 계산문제",
+    "probability": "98%",
+    "question_type": "MULTIPLE_CHOICE",
+    "question_number": 81,
+    "points": 1.0,
+    "stem": "메탄 50%, 에탄 30%, 프로판 20%로 구성된 혼합가스가 있다. 폭발하한계가 메탄 5.0%, 에탄 3.0%, 프로판 2.1%일 때 르샤틀리에 혼합가스 폭발하한계(%)는 약 얼마인가?",
+    "options": [
+      {
+        "option_no": 1,
+        "content": "2.84%",
+        "is_correct": false
+      },
+      {
+        "option_no": 2,
+        "content": "3.38%",
+        "is_correct": true
+      },
+      {
+        "option_no": 3,
+        "content": "4.15%",
+        "is_correct": false
+      },
+      {
+        "option_no": 4,
+        "content": "5.00%",
+        "is_correct": false
+      }
+    ],
+    "explanation": "100 / Lm = (50/5.0) + (30/3.0) + (20/2.1) = 29.52. Lm = 100 / 29.52 = 3.38%"
+  },
+  {
+    "id": "q-ind-written-006",
+    "cert_id": "ind_safety_engineer",
+    "exam_type": "WRITTEN",
+    "subject_code": "IND_CON",
+    "cat_id": "IND_CON_CAT_05",
+    "topic_id": "IND_CON_05_01",
+    "topic_title": "지반 굴착면 안전기울기(사면구배) 기준",
+    "frequency": "매회 출제",
+    "probability": "98%",
+    "question_type": "MULTIPLE_CHOICE",
+    "question_number": 101,
+    "points": 1.0,
+    "stem": "산업안전보건기준에 관한 규칙상 암반(연암) 지반의 굴착면 기울기 기준으로 올바른 것은?",
+    "options": [
+      {
+        "option_no": 1,
+        "content": "1 : 0.3",
+        "is_correct": false
+      },
+      {
+        "option_no": 2,
+        "content": "1 : 0.5",
+        "is_correct": true
+      },
+      {
+        "option_no": 3,
+        "content": "1 : 1.0",
+        "is_correct": false
+      },
+      {
+        "option_no": 4,
+        "content": "1 : 1.5",
+        "is_correct": false
+      }
+    ],
+    "explanation": "경암 1:0.3, 연암 1:0.5, 풍화암 1:1.0"
+  },
+  {
+    "id": "q-ind-practical-001",
+    "cert_id": "ind_safety_engineer",
+    "exam_type": "PRACTICAL",
+    "subject_code": "IND_SAF",
+    "cat_id": "IND_SAF_CAT_09",
+    "topic_id": "IND_SAF_09_02",
+    "topic_title": "중대재해의 법적 정의 3가지",
+    "frequency": "실기 필답형 최다 빈출 (5점)",
+    "probability": "98%",
+    "question_type": "ESSAY",
+    "question_number": 1,
+    "points": 5.0,
+    "stem": "산업안전보건법령상 정의하고 있는 중대재해의 종류 3가지를 기술하시오.",
+    "rubric": {
+      "mandatory_keywords": [
+        {
+          "keyword": "사망자가 1명 이상",
+          "points": 2.0,
+          "synonyms": [
+            "사망자 1명",
+            "1인 이상 사망"
+          ]
+        },
+        {
+          "keyword": "3개월 이상의 요양",
+          "points": 1.5,
+          "synonyms": [
+            "3개월 요양"
+          ]
+        },
+        {
+          "keyword": "동시에 2명 이상",
+          "points": 0.5,
+          "synonyms": [
+            "부상자 2명"
+          ]
+        },
+        {
+          "keyword": "동시에 10명 이상",
+          "points": 1.0,
+          "synonyms": [
+            "10명 이상"
+          ]
+        }
+      ],
+      "reference_essay": "1. 사망자가 1명 이상 발생한 재해\\n2. 3개월 이상의 요양이 필요한 부상자가 동시에 2명 이상 발생한 재해\\n3. 부상자 또는 직업성 질병자가 동시에 10명 이상 발생한 재해"
+    },
+    "explanation": "산안법 시행규칙 제3조에 규정된 중대재해 범위입니다."
+  },
+  {
+    "id": "q-ind-practical-002",
+    "cert_id": "ind_safety_engineer",
+    "exam_type": "PRACTICAL",
+    "subject_code": "IND_MEC",
+    "cat_id": "IND_MEC_CAT_06",
+    "topic_id": "IND_MEC_06_03",
+    "topic_title": "와이어로프 사용금지 폐기 기준",
+    "frequency": "실기 필답형 필수 단골 (4점)",
+    "probability": "98%",
+    "question_type": "ESSAY",
+    "question_number": 5,
+    "points": 4.0,
+    "stem": "산업안전보건기준에 관한 규칙상 양중기에 사용하는 와이어로프의 사용금지(폐기) 기준 4가지를 기술하시오.",
+    "rubric": {
+      "mandatory_keywords": [
+        {
+          "keyword": "소선 10% 이상 절단",
+          "points": 1.0,
+          "synonyms": [
+            "소선의 수가 10% 이상"
+          ]
+        },
+        {
+          "keyword": "지름 감소 7% 초과",
+          "points": 1.0,
+          "synonyms": [
+            "공칭지름의 7% 초과"
+          ]
+        },
+        {
+          "keyword": "꼬임(Kink)",
+          "points": 1.0,
+          "synonyms": [
+            "킹크",
+            "꼬인 것"
+          ]
+        },
+        {
+          "keyword": "심한 변형 또는 부식",
+          "points": 1.0,
+          "synonyms": [
+            "열과 아크"
+          ]
+        }
+      ],
+      "reference_essay": "1. 이음매가 있는 것\\n2. 와이어로프 한 꼬임에서 끊어진 소선의 수가 10% 이상인 것\\n3. 지름의 감소가 공칭지름의 7%를 초과하는 것\\n4. 꼬임(Kink)이 있거나 심하게 변형·부식된 것"
+    },
+    "explanation": "소선 절단 10%, 지름 감소 7%를 정확히 기재해야 정답 인정됩니다."
+  },
+  {
+    "id": "q-ind-practical-003",
+    "cert_id": "ind_safety_engineer",
+    "exam_type": "PRACTICAL",
+    "subject_code": "IND_ELE",
+    "cat_id": "IND_ELE_CAT_04",
+    "topic_id": "IND_ELE_04_01",
+    "topic_title": "정전 작업 전 5대 조치사항",
+    "frequency": "실기 작업형/필답형 빈출 (6점)",
+    "probability": "98%",
+    "question_type": "ESSAY",
+    "question_number": 10,
+    "points": 6.0,
+    "stem": "[동영상 상황] 작업자가 고압 배전반 내부 차단기 유지보수 작업을 시작하려고 한다. 전로를 차단한 후 안전한 작업을 위해 취해야 하는 정전전로 작업 5대 안전조치를 순서대로 기술하시오.",
+    "rubric": {
+      "mandatory_keywords": [
+        {
+          "keyword": "전원 차단(개로)",
+          "points": 1.5,
+          "synonyms": [
+            "전원 개로",
+            "차단기 개방"
+          ]
+        },
+        {
+          "keyword": "LOTO (잠금장치 및 통전금지 표지)",
+          "points": 1.5,
+          "synonyms": [
+            "자물쇠 채움",
+            "표지판 부착"
+          ]
+        },
+        {
+          "keyword": "잔여 전하 방전",
+          "points": 1.0,
+          "synonyms": [
+            "방전 조치"
+          ]
+        },
+        {
+          "keyword": "검전기 무전압 확인",
+          "points": 1.0,
+          "synonyms": [
+            "검전"
+          ]
+        },
+        {
+          "keyword": "단락접지기구 설치",
+          "points": 1.0,
+          "synonyms": [
+            "단락접지"
+          ]
+        }
+      ],
+      "reference_essay": "1. 전기기기 등에 공급되는 모든 전원을 관련 개폐기 등으로 차단(개로)\\n2. 차단 장치에 잠금장치를 하고 통전금지 표지판 부착(LOTO)\\n3. 전로에 잔여 전하가 있을 우려가 있는 경우 방전 조치\\n4. 검전기를 사용하여 해당 전로의 무전압 여부 확인\\n5. 단락접지기구를 설치하여 오통전 및 유도전압에 의한 감전 방지"
+    },
+    "explanation": "정전작업 5대 절차는 전기안전의 핵심 규정입니다."
+  }
+]

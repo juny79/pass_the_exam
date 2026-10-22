@@ -346,11 +346,11 @@ export default function MindMapViewer({
   }, [currentSubject, masteredTopics]);
 
   return (
-    <div className="relative w-full h-[760px] rounded-3xl bg-slate-950 border border-slate-800 overflow-hidden shadow-2xl flex flex-col">
-      {/* 1. 상단 마인드맵 컨트롤 바 */}
-      <div className="h-16 border-b border-slate-800 bg-slate-900/80 backdrop-blur px-6 flex items-center justify-between gap-4 z-10 shrink-0">
-        {/* 과목 탭 전환 */}
-        <div className="flex items-center gap-2 overflow-x-auto py-1 scrollbar-none">
+    <div className="relative w-full h-[780px] rounded-3xl bg-slate-950 border border-slate-800 overflow-hidden shadow-2xl flex flex-col">
+      {/* 1. 상단 컨트롤 헤더 (2열 배치: 과목 탭 전폭 스크롤 + 통계/도구 바) */}
+      <div className="border-b border-slate-800 bg-slate-900/90 backdrop-blur z-10 shrink-0">
+        {/* 상단 1행: 과목 선택 탭 (가려짐 방지 및 부드러운 스크롤) */}
+        <div className="px-5 py-2.5 flex items-center gap-2 overflow-x-auto scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent">
           {subjects.map((sub) => {
             const isSelected =
               (selectedSubjectCode === 'ALL' && subjects[0]?.code === sub.code) ||
@@ -359,36 +359,53 @@ export default function MindMapViewer({
               <button
                 key={sub.code}
                 onClick={() => onSelectSubjectCode(sub.code)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-1.5 ${
+                className={`px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-2 shrink-0 ${
                   isSelected
-                    ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30 ring-1 ring-blue-400'
-                    : 'bg-slate-800/80 text-slate-400 hover:text-white hover:bg-slate-750'
+                    ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg shadow-indigo-600/30 ring-1 ring-blue-400'
+                    : 'bg-slate-800/90 text-slate-300 hover:text-white hover:bg-slate-750 border border-slate-700/60'
                 }`}
               >
-                <span>{sub.code}</span>
-                <span className="hidden sm:inline font-medium text-[11px] opacity-80">{sub.name}</span>
+                <span className="w-5 h-5 rounded-md bg-white/10 flex items-center justify-center text-[10px] font-mono">
+                  {sub.subject_no}
+                </span>
+                <span>{sub.name}</span>
+                <span className="text-[10px] px-1.5 py-0.2 rounded bg-black/25 font-mono text-slate-300">
+                  {sub.code}
+                </span>
               </button>
             );
           })}
         </div>
 
-        {/* 진도율 게이지 & 마스터리 뱃지 */}
-        <div className="flex items-center gap-3 shrink-0">
-          <div className="hidden md:flex flex-col items-end">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-300">
-              <Trophy className="w-3.5 h-3.5 text-amber-400" />
-              <span>과목 정복률</span>
-              <span className="text-emerald-400 font-mono font-extrabold">{currentMasteryStats.percentage}%</span>
-            </div>
-            <div className="text-[10px] text-slate-400">
-              {currentMasteryStats.mastered} / {currentMasteryStats.total} 토픽 완료
-            </div>
+        {/* 상단 2행: 현재 과목 안내 + 과목 정복률 게이지 */}
+        <div className="px-5 py-2 border-t border-slate-800/70 bg-slate-950/60 flex items-center justify-between gap-4 text-xs">
+          <div className="flex items-center gap-2 text-slate-300 min-w-0">
+            <span className="font-bold text-indigo-400 shrink-0 flex items-center gap-1">
+              <Layers className="w-3.5 h-3.5" />
+              {currentSubject?.name}
+            </span>
+            <span className="text-slate-500 hidden sm:inline">|</span>
+            <span className="text-slate-400 text-[11px] truncate hidden sm:inline">
+              {currentSubject?.description}
+            </span>
           </div>
-          <div className="w-24 h-2.5 bg-slate-800 rounded-full overflow-hidden border border-slate-700/50 hidden md:block">
-            <div
-              className="h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-emerald-400 transition-all duration-500 rounded-full"
-              style={{ width: `${currentMasteryStats.percentage}%` }}
-            />
+
+          {/* 정복률 & 진도율 바 */}
+          <div className="flex items-center gap-3 shrink-0">
+            <div className="flex items-center gap-1.5 font-bold text-slate-300">
+              <Trophy className="w-3.5 h-3.5 text-amber-400" />
+              <span className="hidden sm:inline">정복률</span>
+              <span className="text-emerald-400 font-mono font-extrabold">{currentMasteryStats.percentage}%</span>
+              <span className="text-slate-400 text-[11px] font-normal">
+                ({currentMasteryStats.mastered}/{currentMasteryStats.total})
+              </span>
+            </div>
+            <div className="w-28 h-2 bg-slate-800 rounded-full overflow-hidden border border-slate-700/50">
+              <div
+                className="h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-emerald-400 transition-all duration-500 rounded-full"
+                style={{ width: `${currentMasteryStats.percentage}%` }}
+              />
+            </div>
           </div>
         </div>
       </div>

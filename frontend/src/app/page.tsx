@@ -42,7 +42,7 @@ const CERTS: CertConfig[] = [
   {
     id: 'is_engineer',
     title: '정보보안기사',
-    subtitle: '5과목 50개 카테고리 250개 기출 토픽 · 유튜브 명강의 요약 · AI 실기 채점',
+    subtitle: '5과목 50개 카테고리 250개 기출 토픽 · 유튜브 명강의 핵심 요약 · AI 실기 채점',
     badge: 'KCA 공인',
     subjectsCount: 5,
     totalTopics: 250,
@@ -454,7 +454,7 @@ export default function Home() {
                                               {t.core_concepts}
                                             </div>
 
-                                            {/* 유튜브 명강의 요약 & 두음 암기 비법 */}
+                                            {/* 유튜브 명강의 핵심 요약 특강 */}
                                             {t.youtube_tips && (
                                               <div className="p-3.5 bg-rose-950/20 border border-rose-900/40 rounded-xl space-y-2">
                                                 <div className="flex items-center justify-between text-rose-300 font-bold">
@@ -465,11 +465,6 @@ export default function Home() {
                                                   <span className="text-[10px] px-2 py-0.5 bg-rose-500/10 rounded-full border border-rose-500/20 text-rose-300">
                                                     출처: {t.youtube_tips.channel}
                                                   </span>
-                                                </div>
-
-                                                <div className="flex items-center gap-2 p-2 bg-rose-950/40 rounded-lg border border-rose-800/40 text-rose-200 font-semibold">
-                                                  <Lightbulb className="w-4 h-4 text-amber-400 flex-shrink-0" />
-                                                  <span>두음 암기 공식: {t.youtube_tips.mnemonic}</span>
                                                 </div>
 
                                                 <div className="text-slate-300 whitespace-pre-line leading-relaxed font-sans pl-1">
@@ -789,7 +784,7 @@ export default function Home() {
                             </div>
                           </div>
 
-                          {/* 유튜브 명강의 요약 및 암기비법 */}
+                          {/* 유튜브 명강의 발췌 요약 */}
                           {result.youtube_tips && (
                             <div className="p-3.5 bg-rose-950/20 border border-rose-900/40 rounded-xl space-y-2">
                               <div className="flex items-center justify-between text-rose-300 text-xs font-bold">
@@ -800,11 +795,6 @@ export default function Home() {
                                 <span className="text-[10px] px-2 py-0.5 bg-rose-500/10 rounded-full border border-rose-500/20 text-rose-300">
                                   {result.youtube_tips.channel}
                                 </span>
-                              </div>
-
-                              <div className="flex items-center gap-2 p-2 bg-rose-950/40 rounded-lg border border-rose-800/40 text-xs text-rose-200 font-semibold">
-                                <Lightbulb className="w-3.5 h-3.5 text-amber-400 flex-shrink-0" />
-                                <span>암기 팁: {result.youtube_tips.mnemonic}</span>
                               </div>
 
                               <div className="text-xs text-slate-300 whitespace-pre-line leading-relaxed">

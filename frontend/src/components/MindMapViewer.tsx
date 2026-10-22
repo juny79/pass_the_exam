@@ -16,6 +16,8 @@ import {
 import '@xyflow/react/dist/style.css';
 import confetti from 'canvas-confetti';
 import { SubjectInfo, KeyTopic } from '../types/exam';
+import MermaidDiagram from './MermaidDiagram';
+import { generateTopicDiagram } from '../utils/diagramGenerator';
 import {
   Layers,
   FolderTree,
@@ -30,7 +32,8 @@ import {
   Compass,
   Lightbulb,
   Video,
-  Hash
+  Hash,
+  GitBranch
 } from 'lucide-react';
 
 interface MindMapViewerProps {
@@ -469,6 +472,25 @@ export default function MindMapViewer({
                 {activeTopic.topic.title}
               </h3>
             </div>
+
+            {/* 0. 시각화 개념 다이어그램 (Mermaid) */}
+            {(() => {
+              const diagramCode = generateTopicDiagram(activeTopic.topic);
+              return (
+                <div className="space-y-2">
+                  <div className="text-xs font-bold text-indigo-300 flex items-center justify-between">
+                    <span className="flex items-center gap-1.5">
+                      <GitBranch className="w-3.5 h-3.5 text-indigo-400" />
+                      핵심 구조 & 시각화 다이어그램
+                    </span>
+                    <span className="text-[10px] px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-mono">
+                      Visual Map
+                    </span>
+                  </div>
+                  <MermaidDiagram chart={diagramCode} />
+                </div>
+              );
+            })()}
 
             {/* 핵심 이론 */}
             <div className="p-4 rounded-2xl bg-slate-850 border border-slate-800 shadow-inner">

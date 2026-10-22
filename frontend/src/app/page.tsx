@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Question, GradingResult, PassPredictionResult, SubjectInfo } from '../types/exam';
+import MindMapViewer from '../components/MindMapViewer';
 import { 
   ShieldCheck, 
   BookOpen, 
@@ -24,7 +25,9 @@ import {
   Flame,
   FolderTree,
   FileText,
-  HardHat
+  HardHat,
+  Network,
+  LayoutGrid
 } from 'lucide-react';
 
 const API_BASE = 'http://127.0.0.1:8081';
@@ -73,6 +76,35 @@ export default function Home() {
 
   // 3단계(세부 토픽) 토글 상태
   const [expandedTopics, setExpandedTopics] = useState<Record<string, boolean>>({});
+
+  // 족보 뷰 모드: MINDMAP(인터랙티브 마인드맵) vs LIST(기존 3계층 아코디언)
+  const [subjectsViewMode, setSubjectsViewMode] = useState<'MINDMAP' | 'LIST'>('MINDMAP');
+
+  // 게이미피케이션: 완벽 정복 토픽 ID 맵 (localStorage 동기화)
+  const [masteredTopics, setMasteredTopics] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('passforge_mastered_topics');
+      if (saved) {
+        setMasteredTopics(JSON.parse(saved));
+      }
+    } catch (e) {
+      console.error('Failed to load mastery data:', e);
+    }
+  }, []);
+
+  const handleToggleMastery = (topicId: string) => {
+    setMasteredTopics((prev) => {
+      const next = { ...prev, [topicId]: !prev[topicId] };
+      try {
+        localStorage.setItem('passforge_mastered_topics', JSON.stringify(next));
+      } catch (e) {
+        console.error('Failed to save mastery data:', e);
+      }
+      return next;
+    });
+  };
 
   // CBT / 실기 입력 상태
   const [selectedChoices, setSelectedChoices] = useState<Record<string, number>>({});
@@ -303,56 +335,95 @@ export default function Home() {
             <p>{currentCert.title} 세부 카테고리 및 문항 족보 데이터 로딩 중...</p>
           </div>
         ) : activeTab === 'SUBJECTS' ? (
-          /* ================= 3단계(과목-세부카테고리-토픽) 토글 브라우저 ================= */
+          /* ================= 종합 족보 브라우저 (마인드맵 vs 3계층 아코디언) ================= */
           <div className="space-y-6">
-            <div className="flex flex-wrap items-center justify-between gap-4 pb-2">
+            <div className="flex flex-wrap items-center justify-between gap-4 pb-2 border-b border-slate-800">
               <div>
                 <h2 className="text-xl font-bold flex items-center gap-2">
                   <FolderTree className="w-5 h-5 text-indigo-400" />
                   {currentCert.title} {currentCert.subjectsCount}대 과목 세부 카테고리별 종합 족보
                 </h2>
                 <p className="text-xs text-slate-400 mt-1">
-                  <strong>[1단계 과목] → [2단계 세부 카테고리] → [3단계 기출 주제]</strong>의 3계층 아코디언 토글을 통해 출제기준 및 기출·유튜브 명강의 핵심 요약을 학습하세요.
+                  <strong>과목 ➔ 세부 카테고리 ➔ 기출 주제</strong>를 시각적 마인드맵 그래프 또는 상세 아코디언 카드로 탐험하세요.
                 </p>
               </div>
 
-              {/* 전체 펼치기 / 접기 제어 */}
-              <div className="flex gap-2">
-                <button
-                  onClick={() => {
-                    const allOpenSubs: Record<string, boolean> = {};
-                    const allOpenCats: Record<string, boolean> = {};
-                    const allOpenTopics: Record<string, boolean> = {};
-                    subjects.forEach((s) => {
-                      allOpenSubs[s.code] = true;
-                      s.subcategories.forEach((c) => {
-                        allOpenCats[c.cat_id] = true;
-                        c.topics.forEach((t) => (allOpenTopics[t.id] = true));
-                      });
-                    });
-                    setExpandedSubjects(allOpenSubs);
-                    setExpandedCategories(allOpenCats);
-                    setExpandedTopics(allOpenTopics);
-                  }}
-                  className="px-3 py-1 bg-slate-900 border border-slate-800 text-xs text-slate-300 rounded-lg hover:bg-slate-800 transition"
-                >
-                  모든 단계 전체 펼치기
-                </button>
-                <button
-                  onClick={() => {
-                    setExpandedSubjects({});
-                    setExpandedCategories({});
-                    setExpandedTopics({});
-                  }}
-                  className="px-3 py-1 bg-slate-900 border border-slate-800 text-xs text-slate-300 rounded-lg hover:bg-slate-800 transition"
-                >
-                  전체 접기
-                </button>
+              {/* 뷰 모드 전환 버튼 & 전체 펼치기 제어 */}
+              <div className="flex items-center gap-2.5">
+                <div className="flex items-center p-1 bg-slate-900 border border-slate-800 rounded-xl">
+                  <button
+                    onClick={() => setSubjectsViewMode('MINDMAP')}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                      subjectsViewMode === 'MINDMAP'
+                        ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <Network className="w-3.5 h-3.5" />
+                    <span>마인드맵 뷰</span>
+                  </button>
+                  <button
+                    onClick={() => setSubjectsViewMode('LIST')}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                      subjectsViewMode === 'LIST'
+                        ? 'bg-slate-800 text-white shadow-md'
+                        : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <LayoutGrid className="w-3.5 h-3.5" />
+                    <span>아코디언 뷰</span>
+                  </button>
+                </div>
+
+                {subjectsViewMode === 'LIST' && (
+                  <div className="flex gap-1.5">
+                    <button
+                      onClick={() => {
+                        const allOpenSubs: Record<string, boolean> = {};
+                        const allOpenCats: Record<string, boolean> = {};
+                        const allOpenTopics: Record<string, boolean> = {};
+                        subjects.forEach((s) => {
+                          allOpenSubs[s.code] = true;
+                          s.subcategories.forEach((c) => {
+                            allOpenCats[c.cat_id] = true;
+                            c.topics.forEach((t) => (allOpenTopics[t.id] = true));
+                          });
+                        });
+                        setExpandedSubjects(allOpenSubs);
+                        setExpandedCategories(allOpenCats);
+                        setExpandedTopics(allOpenTopics);
+                      }}
+                      className="px-2.5 py-1.5 bg-slate-900 border border-slate-800 text-xs text-slate-300 rounded-lg hover:bg-slate-800 transition"
+                    >
+                      전체 펼치기
+                    </button>
+                    <button
+                      onClick={() => {
+                        setExpandedSubjects({});
+                        setExpandedCategories({});
+                        setExpandedTopics({});
+                      }}
+                      className="px-2.5 py-1.5 bg-slate-900 border border-slate-800 text-xs text-slate-300 rounded-lg hover:bg-slate-800 transition"
+                    >
+                      전체 접기
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 
-            {/* 1단계: 과목 아코디언 */}
-            <div className="space-y-4">
+            {/* 마인드맵 뷰 모드 */}
+            {subjectsViewMode === 'MINDMAP' ? (
+              <MindMapViewer
+                subjects={subjects}
+                selectedSubjectCode={selectedSubjectCode}
+                onSelectSubjectCode={setSelectedSubjectCode}
+                masteredTopics={masteredTopics}
+                onToggleMastery={handleToggleMastery}
+              />
+            ) : (
+              /* 기존 1단계: 과목 아코디언 */
+              <div className="space-y-4">
               {subjects.map((sub) => {
                 const isSubOpen = expandedSubjects[sub.code] ?? false;
                 const totalTopics = sub.subcategories.reduce((acc, c) => acc + c.topics.length, 0);
@@ -507,6 +578,7 @@ export default function Home() {
                 );
               })}
             </div>
+            )}
           </div>
         ) : activeTab === 'PREDICTION' ? (
           /* ================= 합격 예측 시뮬레이터 ================= */

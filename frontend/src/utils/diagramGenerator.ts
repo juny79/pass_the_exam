@@ -32,7 +32,7 @@ export function generateTopicDiagram(topic: KeyTopic): string {
   }
 
   // 2. 대칭키 / 비대칭키 / 공개키 암호
-  if (allText.includes('대칭키') || allText.includes('비대칭키') || allText.includes('rsa') || allText.includes('aes') || allText.includes('암호')) {
+  if (allText.includes('대칭키') || allText.includes('비대칭키') || allText.includes('rsa') || allText.includes('aes') || allText.includes('암호화 방식')) {
     return `flowchart LR
       subgraph Sender["송신자 (Alice)"]
         P1["📄 평문 (Plaintext)"]
@@ -69,7 +69,7 @@ export function generateTopicDiagram(topic: KeyTopic): string {
   }
 
   // 4. 인증 / 인가 (OAuth, JWT, 전자서명, Kerberos)
-  if (allText.includes('인증') || allText.includes('oauth') || allText.includes('jwt') || allText.includes('서명') || allText.includes('토큰')) {
+  if (allText.includes('oauth') || allText.includes('jwt') || allText.includes('서명') || allText.includes('토큰') || allText.includes('인증 수단')) {
     return `sequenceDiagram
       autonumber
       actor User as 👤 사용자
@@ -84,7 +84,7 @@ export function generateTopicDiagram(topic: KeyTopic): string {
   }
 
   // 5. 침해사고 대응 / 보안관제 (Snort, IDS, IPS, 방화벽)
-  if (allText.includes('침해') || allText.includes('ids') || allText.includes('ips') || allText.includes('방화벽') || allText.includes('악성코드')) {
+  if (allText.includes('ids') || allText.includes('ips') || allText.includes('방화벽') || allText.includes('악성코드')) {
     return `flowchart LR
       Attacker["🥷 외부 공격자/패킷"] --> FW["🔥 방화벽 (Firewall)<br>1차 IP/Port 필터링"]
       FW --> IPS["🛡️ IPS / IDS<br>2차 시그니처 정밀 탐지"]
@@ -96,8 +96,80 @@ export function generateTopicDiagram(topic: KeyTopic): string {
       class Server target;`;
   }
 
-  // 6. 산업안전: 하인리히 / 버드 / 재해 발생 도미노 이론
-  if (allText.includes('하인리히') || allText.includes('도미노') || allText.includes('버드') || allText.includes('재해') || allText.includes('안전')) {
+  // 6. 개인정보(CPPG): 개인정보 생명주기 (수집 -> 저장/이용 -> 제공/위탁 -> 파기)
+  if (allText.includes('생명주기') || (allText.includes('수집') && allText.includes('파기'))) {
+    return `flowchart LR
+      C1["1️⃣ 수집·이용<br>(동의/법률근거/최소수집)"] --> C2["2️⃣ 저장·보관<br>(암호화/접근통제/로그)"]
+      C2 --> C3["3️⃣ 제공·위탁<br>(별도동의/계약서/감독)"]
+      C3 --> C4["4️⃣ 파기<br>(목적달성 시 지체없이/영구삭제)"]
+      C4 -.->|"타 법령 보존 의무 시"| C5["🗄️ 별도 분리 보관"]
+      classDef stage fill:#1e1b4b,stroke:#6366f1,stroke-width:2px,color:#e0e7ff;
+      classDef sep fill:#064e3b,stroke:#10b981,stroke-width:1.5px,color:#a7f3d0;
+      class C1,C2,C3,C4 stage;
+      class C5 sep;`;
+  }
+
+  // 7. 개인정보(CPPG): 가명정보 vs 익명정보 vs 개인정보 개념 체계
+  if (allText.includes('가명정보') || allText.includes('익명정보') || allText.includes('재식별') || allText.includes('식별성')) {
+    return `flowchart TD
+      Raw["👤 개인정보 (식별 가능)"] -->|추가정보 결합 시 식별 가능| Pseudo["🪪 가명정보 (Pseudonymized)<br>• 추가정보 별도 보관 필수<br>• 통계·연구·기록보존 활용<br>• 재식별 처리 시 엄격 처벌"]
+      Raw -->|시간·비용상 복원 불가| Anon["🔒 익명정보 (Anonymized)<br>• 개인정보보호법 적용 제외<br>• 자유로운 활용 가능"]
+      classDef raw fill:#1e1b4b,stroke:#818cf8,stroke-width:2px,color:#c7d2fe;
+      classDef pseudo fill:#064e3b,stroke:#34d399,stroke-width:2px,color:#a7f3d0;
+      classDef anon fill:#0f172a,stroke:#64748b,stroke-width:1.5px,color:#94a3b8;
+      class Raw raw;
+      class Pseudo pseudo;
+      class Anon anon;`;
+  }
+
+  // 8. 개인정보(CPPG): 제3자 제공 vs 처리위탁 비교
+  if (allText.includes('위탁') && (allText.includes('제공') || allText.includes('제3자'))) {
+    return `flowchart TD
+      User["👤 정보주체"]
+      subgraph Provider["개인정보처리자 (위탁자)"]
+        Controller["🏢 본사 (데이터 보유)"]
+      end
+      subgraph Case1["제3자 제공 (법 제17조)"]
+        Third["🏬 제3자 (자체 업무 목적)"]
+      end
+      subgraph Case2["처리위탁 (법 제26조)"]
+        Processor["🤝 수탁자 (위탁자 업무 대행)"]
+      end
+      User -->|"별도 사전 동의 필수 📋"| Third
+      Controller -->|"위탁자 지휘·감독 및 계약서 체결 📝"| Processor
+      classDef prov fill:#1e1b4b,stroke:#6366f1,color:#e0e7ff;
+      classDef c1 fill:#831843,stroke:#f43f5e,color:#fff1f2;
+      classDef c2 fill:#064e3b,stroke:#10b981,color:#ecfdf5;
+      class Controller prov;
+      class Third c1;
+      class Processor c2;`;
+  }
+
+  // 9. 개인정보(CPPG): 개인정보 유출 시 법정 통지·신고 프로세스
+  if (allText.includes('유출') && (allText.includes('통지') || allText.includes('신고') || allText.includes('72시간'))) {
+    return `flowchart TD
+      Leak["🚨 개인정보 유출 인지"] --> Time{"유출 인지 시점"}
+      Time -->|"72시간 이내 ⏱️"| Step1["📢 정보주체 개별 통지<br>(유출항목/시점/조치방법 5대 필수항목)"]
+      Time -->|"1천명 이상 유출 시 ⚠️"| Step2["🏛️ 보호위원회·KISA 법정 신고<br>+ 인터넷 홈페이지 7일 이상 게재"]
+      Step1 --> Action["🛡️ 2차 피해 예방 접수처 운영 및 패치"]
+      Step2 --> Action
+      classDef alert fill:#7f1d1d,stroke:#ef4444,stroke-width:2px,color:#fee2e2;
+      classDef action fill:#1e1b4b,stroke:#6366f1,color:#e0e7ff;
+      class Leak,Time alert;
+      class Step1,Step2,Action action;`;
+  }
+
+  // 10. 개인정보(CPPG): 프라이버시 보호 모델 (k-익명성, l-다양성, t-근접성)
+  if (allText.includes('k-익명성') || allText.includes('l-다양성') || allText.includes('t-근접성') || allText.includes('비식별')) {
+    return `flowchart TD
+      K["1️⃣ k-익명성 (k-Anonymity)<br>동일 준식별자 레코드 최소 k개 보장"] -->|"취약점: 동질성 공격, 배경지식 공격"| L["2️⃣ l-다양성 (l-Diversity)<br>동질 집단 내 민감정보 최소 l개 다양화"]
+      L -->|"취약점: 쏠림 공격, 유사성 공격"| T["3️⃣ t-근접성 (t-Closeness)<br>민감정보 분포가 전체 데이터와 t 이하 근접"]
+      classDef model fill:#1e1b4b,stroke:#818cf8,stroke-width:2px,color:#c7d2fe;
+      class K,L,T model;`;
+  }
+
+  // 11. 산업안전: 하인리히 / 버드 / 재해 발생 도미노 이론
+  if (allText.includes('하인리히') || allText.includes('도미노') || allText.includes('버드') || allText.includes('재해발생')) {
     return `flowchart LR
       Step1["1단계<br>사회적 환경과<br>유전적 요소"] --> Step2["2단계<br>개인적 결함<br>(지식/기능 부족)"]
       Step2 --> Step3["3단계 🎯<br>불안전한 행동 및<br>불안전한 상태"]
@@ -110,8 +182,8 @@ export function generateTopicDiagram(topic: KeyTopic): string {
       class Step1,Step2,Step4,Step5 normal;`;
   }
 
-  // 7. 산업안전: 위험성평가 5단계 절차
-  if (allText.includes('위험성평가') || allText.includes('위험성') || allText.includes('평가')) {
+  // 12. 산업안전: 위험성평가 5단계 절차
+  if (allText.includes('위험성평가') || (allText.includes('위험성') && allText.includes('평가'))) {
     return `flowchart TD
       S1["1️⃣ 사전 준비 (평가 대상 확정 및 정보 수집)"]
       S2["2️⃣ 유해·위험요인 파악 (현장 순회 및 체크리스트)"]
@@ -124,7 +196,7 @@ export function generateTopicDiagram(topic: KeyTopic): string {
       class S1,S2,S3,S4,S5 step;`;
   }
 
-  // 8. 산업안전: 기계/전기/화학/건설 안전 방호장치 & 안전수칙
+  // 13. 산업안전: 기계/전기/화학/건설 안전 방호장치 & 안전수칙
   if (allText.includes('크레인') || allText.includes('감전') || allText.includes('보호구') || allText.includes('양중기') || allText.includes('거푸집')) {
     return `flowchart TD
       Risk["⚠️ 잠재적 산업 위험요인"] --> Check{"안전점검 실시"}

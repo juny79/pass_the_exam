@@ -27,7 +27,8 @@ import {
   FileText,
   HardHat,
   Network,
-  LayoutGrid
+  LayoutGrid,
+  Lock
 } from 'lucide-react';
 
 const API_BASE = 'http://127.0.0.1:8081';
@@ -57,6 +58,14 @@ const CERTS: CertConfig[] = [
     badge: 'Q-Net 국가기술',
     subjectsCount: 6,
     totalTopics: 300,
+  },
+  {
+    id: 'cppg',
+    title: '개인정보관리사(CPPG)',
+    subtitle: '5과목 50개 카테고리 250개 기출 토픽 · 개인정보보호법 개정 완벽반영 · 마인드맵 & 합격예측',
+    badge: 'KISA·KOPIS 공인',
+    subjectsCount: 5,
+    totalTopics: 250,
   },
 ];
 
@@ -247,6 +256,8 @@ export default function Home() {
           <div className="p-2.5 bg-indigo-600 rounded-xl text-white shadow-lg shadow-indigo-500/30 flex items-center justify-center">
             {selectedCertId === 'ind_safety_engineer' ? (
               <HardHat className="w-6 h-6 text-amber-300" />
+            ) : selectedCertId === 'cppg' ? (
+              <Lock className="w-6 h-6 text-emerald-300" />
             ) : (
               <ShieldCheck className="w-6 h-6" />
             )}

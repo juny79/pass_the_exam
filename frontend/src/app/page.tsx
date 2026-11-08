@@ -31,7 +31,7 @@ import {
   Lock
 } from 'lucide-react';
 
-const API_BASE = 'http://127.0.0.1:8081';
+const API_BASE = '';
 
 interface CertConfig {
   id: string;
